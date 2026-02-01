@@ -7,8 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.swerve.commands.SwerveDriveJoystick;
 
 /**
  * Clase central de configuración del robot.
@@ -18,49 +16,43 @@ import frc.robot.subsystems.swerve.commands.SwerveDriveJoystick;
  */
 public class RobotContainer {
 
-  /** Subsistema swerve principal del robot. */
-  private final Swerve swerve;
-
   /** Joystick del driver (puerto 0). */
   private final XboxController driverJoystick;
+
+  /** Gestor de subsistemas y estados del robot. */
+  private final SubsystemManager subsystemManager;
 
   /**
    * Crea el contenedor del robot.
    *
-   * Inicializa el subsistema swerve y configura el comando por defecto
-   * de conducción con joystick.
+   * Configura los subsistemas, comandos y bindings.
    */
   public RobotContainer() {
-    // true = usar Pigeon2 como IMU principal, false = usar NavX.
-    this.swerve = new Swerve(true);
 
     this.driverJoystick = new XboxController(0);
+    this.subsystemManager = new SubsystemManager();
 
     configureBindings();
+
+    // Inicializar el estado del robot
+    subsystemManager.initialize();
   }
 
   /**
    * Configura los bindings de comandos:
    * <ul>
-   *   <li>Comando por defecto del swerve: conducción con joystick</li>
+   *   <li>Controles de conducción para el estado {@link RobotState#TRAVEL}.</li>
    * </ul>
    */
   private void configureBindings() {
-    // Comando por defecto: controlar el swerve con el joystick del driver.
-    swerve.setDefaultCommand(
-        new SwerveDriveJoystick(
-            swerve,
-            // Eje Y del joystick izquierdo controla movimiento hacia adelante/atrás.
-            () -> -driverJoystick.getLeftY(),
-            // Eje X del joystick izquierdo controla movimiento lateral.
-            () -> -driverJoystick.getLeftX(),
-            // Eje X del joystick derecho controla la rotación.
-            () -> -driverJoystick.getRightX(),
-            // Botón X: cuando NO está presionado -> modo field-relative (true).
-            () -> !driverJoystick.getXButton(),
-            // Botón A: resetea el yaw del gyro.
-            () -> driverJoystick.getAButton()
-        ));
+    // Configurar controles para el estado TRAVEL
+    subsystemManager.configureTravelControls(
+        () -> -driverJoystick.getLeftY(),
+        () -> -driverJoystick.getLeftX(),
+        () -> -driverJoystick.getRightX(),
+        () -> !driverJoystick.getRightBumperButton(),
+        () -> driverJoystick.getAButton()
+    );
   }
 
   /**
@@ -71,5 +63,14 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return new InstantCommand();
+  }
+
+  /**
+   * Debe ser llamado desde Robot.robotPeriodic()
+   * 
+   * Actualiza el subsystem manager y la estimación de pose.
+   */
+  public void periodic() {
+    subsystemManager.periodic();
   }
 }
