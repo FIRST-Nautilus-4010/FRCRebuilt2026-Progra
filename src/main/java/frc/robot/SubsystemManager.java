@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.swerve.PoseTracker;
@@ -24,14 +26,52 @@ public final class SubsystemManager {
     /** Estado actual del robot. Solo se usa TRAVEL en esta versión. */
     private RobotState robotState = RobotState.TRAVEL;
 
+    // --- Suppliers para controles de TRAVEL ---
+    private Supplier<Double> travelVxSupplier;
+    private Supplier<Double> travelVySupplier;
+    private Supplier<Double> travelOmegaSupplier;
+    private Supplier<Boolean> travelFieldRelativeSupplier;
+    private Supplier<Boolean> travelResetYawSupplier;
+
     /**
      * Crea el gestor de subsistemas usando el subsistema swerve.
-     *
-     * @param swerve subsistema de chasis swerve del robot
-     */
-    public SubsystemManager(Swerve swerve) {
-        this.poseTracker = new PoseTracker(swerve);
+     */ 
+    public SubsystemManager() {
+        this.poseTracker = new PoseTracker(new Swerve(true));
+    }
 
+    /**
+     * Configura los controles para el estado TRAVEL.
+     * 
+     * Debe ser llamado desde {@link RobotContainer} después de crear
+     * el SubsystemManager.
+     *
+     * @param vx velocidad X del robot (m/s)
+     * @param vy velocidad Y del robot (m/s)
+     * @param omega velocidad angular del robot (rad/s)
+     * @param fieldRelative si la conducción es relativa al campo
+     * @param resetYaw si se debe resetear el yaw (gyro)
+     */
+    public void configureTravelControls(
+            Supplier<Double> vx,
+            Supplier<Double> vy,
+            Supplier<Double> omega,
+            Supplier<Boolean> fieldRelative,
+            Supplier<Boolean> resetYaw
+    ) {
+        this.travelVxSupplier = vx;
+        this.travelVySupplier = vy;
+        this.travelOmegaSupplier = omega;
+        this.travelFieldRelativeSupplier = fieldRelative;
+        this.travelResetYawSupplier = resetYaw;
+    }
+
+    /**
+     * Inicializa el estado del robot.
+     * 
+     * Debe ser llamado después de configurar los controles.
+     */
+    public void initialize() {
         // Estado inicial: TRAVEL (conducción normal del chasis).
         scheduleState(RobotState.TRAVEL);
     }
@@ -68,8 +108,26 @@ public final class SubsystemManager {
     public void scheduleState(RobotState state) {
         switch (state) {
             case TRAVEL:
+                // Verifica que los controles estén configurados
+                if (travelVxSupplier == null) {
+                    throw new IllegalStateException(
+                        "Travel controls not configured. Call configureTravelControls() first."
+                    );
+                }
+                
+                CommandScheduler.getInstance().schedule(
+                    poseTracker.setSpeeds(
+                        travelVxSupplier,
+                        travelVySupplier,
+                        travelOmegaSupplier,
+                        travelFieldRelativeSupplier,
+                        travelResetYawSupplier
+                    )
+                );
+                setState(RobotState.TRAVEL);
+                break;
             default:
-                // En esta versión, TRAVEL solo actualiza el estado lógico.
+                // En esta versión, otros estados también van a TRAVEL.
                 setState(RobotState.TRAVEL);
                 break;
         }
