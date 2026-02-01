@@ -37,7 +37,7 @@ public final class SubsystemManager {
      * Crea el gestor de subsistemas usando el subsistema swerve.
      */ 
     public SubsystemManager() {
-        this.poseTracker = new PoseTracker(new Swerve(true));
+        this.poseTracker = new PoseTracker();
     }
 
     /**
