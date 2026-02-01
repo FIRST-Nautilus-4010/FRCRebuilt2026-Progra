@@ -11,7 +11,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
  * Encapsula la configuración y el control del shooter:
  * <ul>
  *   <li>Motor de giro en modo Motion Magic Velocity</li>
- *   <li>Motor de giro secundario</li>
+ *   <li>Motor de giro secundario en modo Follower</li>
  * </ul>
  *
  * Esta clase:
@@ -49,7 +49,7 @@ public class ShooterController {
      * Crea un controlador para un shooter.
      *
      * @param spinMotor   TalonFX usado como spin (giro)
-     * @param spinMotorSecondary TalonFX usado como spinMotorSecondary (pivote)
+     * @param spinMotorSecondary TalonFX usado como spinMotorSecondary (motor secundario)
      */
     public ShooterController(TalonFX spinMotor, TalonFX spinMotorSecondary) {
         this.spinMotor = spinMotor;
@@ -109,9 +109,9 @@ public class ShooterController {
 
 
     /**
-     * Configura los parámetros de Motion Magic para el pivote.
+     * Configura los parámetros de Motion Magic para el motor de giro.
      * <ul>
-     *   <li>Pivote: vel. crucero, aceleración, jerk y parámetros Expo</li>
+     *   <li>Motor de giro: vel. crucero, aceleración, jerk y parámetros Expo</li>
      * </ul>
      */
     private void configureMotionMagic() {
