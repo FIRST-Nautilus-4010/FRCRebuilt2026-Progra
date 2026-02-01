@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.swerve.PoseTracker;
-import frc.robot.subsystems.swerve.Swerve;
 
 /**
  * Gestor simple de subsistemas/estados del robot.
