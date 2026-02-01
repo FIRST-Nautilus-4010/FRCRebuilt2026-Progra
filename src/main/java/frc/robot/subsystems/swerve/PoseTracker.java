@@ -81,8 +81,8 @@ public class PoseTracker {
      *
      * @param swerve subsistema swerve del robot.
      */
-    public PoseTracker(Swerve swerve) {
-        this.swerve = swerve;
+    public PoseTracker() {
+        this.swerve = new Swerve(true);
 
         this.poseEstimator = new SwerveDrivePoseEstimator(
                 ChassisConstants.KINEMATICS,
