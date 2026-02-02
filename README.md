@@ -178,6 +178,7 @@ classDiagram
     class RobotState {
         <<enumeration>>
         TRAVEL
+        TEST
     }
     
     class Swerve {
