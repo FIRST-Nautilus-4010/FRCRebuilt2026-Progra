@@ -4,6 +4,8 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.PoseTracker;
 
 /**
@@ -21,6 +23,7 @@ public final class SubsystemManager {
 
     /** Rastreador de pose del robot (odometría + visión). */
     private final PoseTracker poseTracker;
+    private final Intake intake;
 
     /** Estado actual del robot. Solo se usa TRAVEL en esta versión. */
     private RobotState robotState = RobotState.TRAVEL;
@@ -37,6 +40,7 @@ public final class SubsystemManager {
      */ 
     public SubsystemManager() {
         this.poseTracker = new PoseTracker();
+        this.intake = new Intake();
     }
 
     /**
@@ -105,6 +109,8 @@ public final class SubsystemManager {
      * de estados se redirigen a TRAVEL.
      */
     public void scheduleState(RobotState state) {
+        setState(state);
+
         switch (state) {
             case TRAVEL:
                 // Verifica que los controles estén configurados
@@ -115,15 +121,22 @@ public final class SubsystemManager {
                 }
                 
                 CommandScheduler.getInstance().schedule(
-                    poseTracker.setSpeeds(
-                        travelVxSupplier,
-                        travelVySupplier,
-                        travelOmegaSupplier,
-                        travelFieldRelativeSupplier,
-                        travelResetYawSupplier
+                    new ParallelCommandGroup(
+                        poseTracker.setSpeeds(
+                            travelVxSupplier,
+                            travelVySupplier,
+                            travelOmegaSupplier,
+                            travelFieldRelativeSupplier,
+                            travelResetYawSupplier
+                        ),
+                        intake.stowCommand()
                     )
                 );
-                setState(RobotState.TRAVEL);
+                break;
+            case TEST:
+                CommandScheduler.getInstance().schedule(
+                    intake.grabCommand()
+                );
                 break;
             default:
                 // En esta versión, otros estados también van a TRAVEL.
