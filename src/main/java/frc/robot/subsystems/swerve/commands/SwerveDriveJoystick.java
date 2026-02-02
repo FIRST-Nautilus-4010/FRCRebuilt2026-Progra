@@ -36,6 +36,14 @@ public class SwerveDriveJoystick extends Command {
     private final Supplier<Boolean> fieldRelative;
     private final Supplier<Boolean> resetYaw;
 
+    /** Vector objetivo para la dirección del movimiento asistido. */
+    private Supplier<double[]> targetVector;
+
+    /** Indica si el modo asistido está activado. */
+    private boolean assisted = false;
+
+    
+
     /**
      * Crea un comando de conducción swerve con joystick.
      *
@@ -64,6 +72,27 @@ public class SwerveDriveJoystick extends Command {
         addRequirements(swerve);
     }
 
+    public SwerveDriveJoystick(
+            Swerve swerve,
+            Supplier<Double> x,
+            Supplier<Double> y,
+            Supplier<Double> z,
+            Supplier<Boolean> fieldRelative,
+            Supplier<Boolean> resetYaw,
+            Supplier<double[]> targetVector
+    ) {
+        this.swerve = swerve;
+        this.xInput = x;
+        this.yInput = y;
+        this.zInput = z;
+        this.fieldRelative = fieldRelative;
+        this.resetYaw = resetYaw;
+        this.targetVector = targetVector;
+        this.assisted = true;
+
+        addRequirements(swerve);
+    }
+
     @Override
     public void execute() {
         // Lee entradas normalizadas y las escala a velocidades físicas.
@@ -79,15 +108,34 @@ public class SwerveDriveJoystick extends Command {
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed);
 
         if (fieldRelative.get()) {
-            // Conducción relativa al campo (usa orientación actual del robot).
-            swerve.driveFieldRelative(
-                    chassisSpeeds.vxMetersPerSecond,
-                    chassisSpeeds.vyMetersPerSecond,
-                    chassisSpeeds.omegaRadiansPerSecond
-            );
+            if (assisted) {
+                // Conducción relativa al campo (modo asistido).
+                swerve.driveFieldRelative(
+                        chassisSpeeds.vxMetersPerSecond,
+                        chassisSpeeds.vyMetersPerSecond,
+                        chassisSpeeds.omegaRadiansPerSecond,
+                        targetVector.get()
+                );
+            } else {
+                // Conducción relativa al campo (usa orientación actual del robot).
+                swerve.driveFieldRelative(
+                        chassisSpeeds.vxMetersPerSecond,
+                        chassisSpeeds.vyMetersPerSecond,
+                        chassisSpeeds.omegaRadiansPerSecond
+                );
+            }
         } else {
-            // Conducción relativa al robot.
-            swerve.drive(chassisSpeeds);
+            if (assisted) {
+                // Conducción relativa al robot (modo asistido).
+                swerve.drive(
+                        chassisSpeeds,
+                        targetVector.get()
+                );
+                return;
+            } else {
+                // Conducción relativa al robot (normal).
+                swerve.drive(chassisSpeeds);
+            }
         }
 
         // Opción para resetear yaw del gyro (por ejemplo, botón en el joystick).

@@ -39,7 +39,7 @@ public class PoseTracker {
     private static final String LIMELIGHT_NAME = "limelight";
 
     /** Umbral mínimo de área de target para considerar la medición válida. */
-    private static final double MIN_TARGET_AREA = 0.1;
+    private static final double MIN_TARGET_AREA = 0.01;
 
     // --- Estimador de pose y publicación ---
 
@@ -115,7 +115,10 @@ public class PoseTracker {
     }
 
     /** Crea un comando para conducir hasta una pose objetivo. */
-    public Command driveTo(Pose2d pose) {
+    public Command driveTo(Pose2d pose, boolean assistedMode) {
+        if (assistedMode) {
+            return new DriveTo(pose, swerve, this, this::getTargetVector);
+        }
         return new DriveTo(pose, swerve, this);
     }
 
@@ -142,14 +145,32 @@ public class PoseTracker {
             Supplier<Double> vy,
             Supplier<Double> omega,
             Supplier<Boolean> fieldRelative,
-            Supplier<Boolean> resetYaw
+            Supplier<Boolean> resetYaw,
+            boolean assistedMode
     ) {
+        if (assistedMode) {
+            return new SwerveDriveJoystick(
+                    swerve, vx, vy, omega, fieldRelative, resetYaw, this::getTargetVector);
+        }
         return new SwerveDriveJoystick(swerve, vx, vy, omega, fieldRelative, resetYaw);
     }
 
     // --------------------------------------------------------------------
     // VISIÓN (LIMELIGHT)
     // --------------------------------------------------------------------
+
+    private double[] getTargetVector() {
+        boolean hasTarget = LimelightHelpers.getTV(LIMELIGHT_NAME);
+        double targetArea = LimelightHelpers.getTA(LIMELIGHT_NAME);
+
+        if (hasTarget && targetArea > MIN_TARGET_AREA) {
+            double tx = LimelightHelpers.getTX(LIMELIGHT_NAME);
+            double distance = 0.03904252879 / targetArea; // Distancia estimada en metros
+            return new double[] {Math.toRadians(tx), distance};
+        }
+
+        return new double[] {0.0, 0.0};
+    }
 
     /**
      * Devuelve la pose estimada por la Limelight si hay un target válido.

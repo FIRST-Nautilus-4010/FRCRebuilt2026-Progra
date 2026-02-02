@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.swerve.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -33,6 +35,12 @@ public class DriveTo extends Command {
 
   /** Controlador holonómico (X, Y, theta). */
   private final HolonomicDriveController controller;
+
+  /** Vector objetivo para la dirección del movimiento asistido. */
+  private Supplier<double[]> targetVector;
+  
+  /** Indica si el modo asistido está activado. */
+  private boolean assistedMode = false;
 
   /**
    * Crea un comando para ir a una pose concreta.
@@ -73,6 +81,13 @@ public class DriveTo extends Command {
     addRequirements(swerve);
   }
 
+  public DriveTo( Pose2d target, Swerve swerve, PoseTracker poseTracker, Supplier<double[]> targetVector) {
+    this(target, swerve, poseTracker);
+
+    assistedMode = true;
+    this.targetVector = targetVector;
+  }
+
   @Override
   public void execute() {
     // Calcula las velocidades de chasis necesarias para ir desde la pose actual a la objetivo.
@@ -88,12 +103,23 @@ public class DriveTo extends Command {
         desiredPose,
         AutonomousConstants.MAX_SPD,
         target.getRotation());
-
-    // Comando de conducción en coordenadas de campo.
-    swerve.driveFieldRelative(
-        chassisSpeeds.vxMetersPerSecond,
-        chassisSpeeds.vyMetersPerSecond,
-        chassisSpeeds.omegaRadiansPerSecond);
+    
+    if (assistedMode) {
+      // Comando de conducción en coordenadas de campo (asistido).
+      swerve.driveFieldRelative(
+          chassisSpeeds.vxMetersPerSecond,
+          chassisSpeeds.vyMetersPerSecond,
+          chassisSpeeds.omegaRadiansPerSecond,
+          targetVector.get()
+        );
+    } else {
+      // Comando de conducción en coordenadas de campo (normal).
+      swerve.driveFieldRelative(
+          chassisSpeeds.vxMetersPerSecond,
+          chassisSpeeds.vyMetersPerSecond,
+          chassisSpeeds.omegaRadiansPerSecond
+        );
+    }
   }
 
   @Override

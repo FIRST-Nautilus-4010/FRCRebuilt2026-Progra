@@ -196,4 +196,7 @@ public final class SwerveConstants {
      * se fuerza a 0 para evitar vibraciones.
      */
     public static final double VELOCITY_DEADZONE = 0.10;
+
+    /** Factor de asistencia al strafe en el modo asistido. */
+    public static final double ASSIST_STRAFE_FACTOR = 0.4;
 }
