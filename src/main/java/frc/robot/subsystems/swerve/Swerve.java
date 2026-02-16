@@ -266,15 +266,62 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
+     * Conduce el robot en modo field-relative.
+     *
+     * @param xSpeed velocidad en X relativa al campo (m/s)
+     * @param ySpeed velocidad en Y relativa al campo (m/s)
+     * @param rot    velocidad angular (rad/s)
+     */
+    public void driveFieldRelative(double xSpeed, double ySpeed, double rot, double[] targetVector) {
+        // Convierte velocidades del marco del campo al marco del robot.
+        ChassisSpeeds fieldRelativeSpeeds =
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        xSpeed,
+                        ySpeed,
+                        rot,
+                        getRotation2d());
+
+        drive(fieldRelativeSpeeds, targetVector);
+    }
+
+    /**
+     * Conduce el robot con velocidades en el marco del robot.
+     *
+     * @param speeds velocidades de chasis (vx, vy, ω)
+     * @param targetVector vector objetivo [ángulo (rad), distancia (m)]
+     */
+    public void drive(ChassisSpeeds speeds, double[] targetVector) {
+        double speedsAngle = Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
+
+        double angleToTarget = speedsAngle - targetVector[0];
+
+        if (Math.abs(angleToTarget) >= Math.PI / 2) {
+            // Sin target válido, conducción normal.
+            drive(speeds);
+            return;
+        }
+
+        double assistModule = Math.sin(speedsAngle - targetVector[0]) * targetVector[1];
+
+        // Convierte velocidades de chasis a estados de módulos.
+        ChassisSpeeds asistedVector = new ChassisSpeeds(
+            speeds.vyMetersPerSecond * assistModule * SwerveConstants.ASSIST_STRAFE_FACTOR,
+            -speeds.vxMetersPerSecond * assistModule * SwerveConstants.ASSIST_STRAFE_FACTOR,
+            speeds.omegaRadiansPerSecond
+        );
+
+        drive(asistedVector);
+    }
+
+    /**
      * Conduce el robot con velocidades en el marco del robot.
      *
      * @param speeds velocidades de chasis (vx, vy, ω)
      */
     public void drive(ChassisSpeeds speeds) {
-        // Convierte velocidades de chasis a estados de módulos.
         SwerveModuleState[] moduleStates =
                 ChassisConstants.KINEMATICS.toSwerveModuleStates(speeds);
-
+        
         // Aplica estados a los módulos.
         setStates(moduleStates);
 

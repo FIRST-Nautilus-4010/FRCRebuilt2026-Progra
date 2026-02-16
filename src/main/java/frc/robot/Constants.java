@@ -27,10 +27,10 @@ public final class Constants {
     private ChassisConstants() {}
 
     /** Distancia entre ruedas derecha e izquierda (m). */
-    public static final double TRACKWIDTH = 0.42;
+    public static final double TRACKWIDTH = 0.47;
 
     /** Distancia entre ruedas delanteras y traseras (m). */
-    public static final double WHEELBASE = 0.42;
+    public static final double WHEELBASE = 0.56;
 
     /**
      * Cinemática del chasis swerve.

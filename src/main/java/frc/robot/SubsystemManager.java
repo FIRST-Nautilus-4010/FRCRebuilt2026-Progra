@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -127,7 +128,8 @@ public final class SubsystemManager {
                             travelVySupplier,
                             travelOmegaSupplier,
                             travelFieldRelativeSupplier,
-                            travelResetYawSupplier
+                            travelResetYawSupplier,
+                            false
                         ),
                         intake.stowCommand()
                     )
@@ -135,7 +137,8 @@ public final class SubsystemManager {
                 break;
             case TEST:
                 CommandScheduler.getInstance().schedule(
-                    intake.grabCommand()
+                    intake.grabCommand(),
+                    poseTracker.rotateTo(Rotation2d.fromDegrees(90))
                 );
                 break;
             default:
