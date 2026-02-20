@@ -1,9 +1,11 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
@@ -25,7 +27,8 @@ public class IntakeController {
     // --- Motores físicos ---
 
     /** Motor de giro. */
-    private final TalonFX spinMotor;
+    private final TalonFX spinBackMotor;
+    private final TalonFX spinFrontMotor;
 
     /** Motor del pivote. */
     private final TalonFX pivotMotor;
@@ -55,11 +58,13 @@ public class IntakeController {
     /**
      * Crea un controlador para un intake.
      *
-     * @param spinMotor   TalonFX usado como spin (giro)
+     * @param spinBackMotor   TalonFX usado como spin (giro)
+     * @param spinFrontMotor  TalonFX usado como spin (giro)
      * @param pivotMotor TalonFX usado como pivot (pivote)
      */
-    public IntakeController(TalonFX spinMotor, TalonFX pivotMotor) {
-        this.spinMotor = spinMotor;
+    public IntakeController(TalonFX spinBackMotor, TalonFX spinFrontMotor, TalonFX pivotMotor) {
+        this.spinBackMotor = spinBackMotor;
+        this.spinFrontMotor = spinFrontMotor;
         this.pivotMotor = pivotMotor;
 
         // Instancia configuraciones vacías que luego llenamos con nuestras constantes.
@@ -82,7 +87,8 @@ public class IntakeController {
         configureSoftLimits();
 
         // Aplica las configuraciones a los TalonFX.
-        this.spinMotor.getConfigurator().apply(spinConfig);
+        this.spinBackMotor.getConfigurator().apply(spinConfig);
+        this.spinFrontMotor.getConfigurator().apply(spinConfig);
         this.pivotMotor.getConfigurator().apply(pivotConfig);
     }
 
@@ -94,6 +100,8 @@ public class IntakeController {
      * Configura los límites de corriente y el modo neutral de ambos motores.
      */
     private void configureMotors() {
+        spinFrontMotor.setControl(new Follower(spinBackMotor.getDeviceID(), MotorAlignmentValue.Aligned));
+
         spinConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         spinConfig.CurrentLimits.SupplyCurrentLimit = 40;
         spinConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -184,9 +192,9 @@ public class IntakeController {
     public void setVelocity(double velocityRps) {
         if (Math.abs(velocityRps) > 0.1) {
             double motorVelocity = velocityRps;
-            spinMotor.setControl(velocityRequest.withVelocity(motorVelocity));
+            spinBackMotor.setControl(velocityRequest.withVelocity(motorVelocity));
         } else {
-            spinMotor.stopMotor();
+            spinBackMotor.stopMotor();
         }
     }
 
