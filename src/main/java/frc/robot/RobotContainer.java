@@ -58,6 +58,15 @@ public class RobotContainer {
     Trigger testTrigger = new Trigger(() -> driverJoystick.getYButton());
     testTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.TEST)));
 
+    Trigger intakeTrigger = new Trigger(() -> driverJoystick.getLeftTriggerAxis() > 0.5);
+    intakeTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE)));
+
+    Trigger shootTrigger = new Trigger(() -> driverJoystick.getRightTriggerAxis() > 0.5);
+    shootTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.SHOOT)));
+
+    Trigger climbTrigger = new Trigger(() -> driverJoystick.getBButton());
+    climbTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.CLIMB)));
+
     Trigger travelTrigger = new Trigger(() -> driverJoystick.getXButton());
     travelTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.TRAVEL)));
   }
