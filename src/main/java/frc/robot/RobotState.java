@@ -9,5 +9,8 @@ package frc.robot;
 public enum RobotState {
     /** Modo de conducción normal del chasis swerve. */
     TRAVEL,
+    INTAKE,
+    SHOOT,
+    CLIMB,
     TEST
 }
