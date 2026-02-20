@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,7 +14,7 @@ public class Intake extends SubsystemBase{
 
     public Intake() {
         this.io = new IntakeIO();
-        this.controller = new IntakeController(io.getSpinMotor(), io.getPivotMotor());
+        this.controller = new IntakeController(io.getspinBackMotor(), io.getspinFrontMotor(), io.getPivotMotor());
     }
 
     public Command grabCommand() {
@@ -30,5 +31,11 @@ public class Intake extends SubsystemBase{
 
     public Command stopCommand() {
         return new InstantCommand(() -> io.stopMotors(), this);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Intake position (RAD)", io.getPivotPositionRad());
+        SmartDashboard.putNumber("Intake velocity (RPS)", io.getSpinVelocityRPS());
     }
 }
