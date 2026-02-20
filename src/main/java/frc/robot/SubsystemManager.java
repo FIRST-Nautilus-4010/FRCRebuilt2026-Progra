@@ -134,8 +134,54 @@ public final class SubsystemManager {
                                 false
                             );
                         }),
-                        intake.stowCommand()
+                        intake.stopCommand()
                     )
+                );
+                break;
+            case INTAKE:
+                CommandScheduler.getInstance().schedule(
+                    new InstantCommand(() -> {
+                            poseTracker.configureDefaultCommands(
+                                travelVxSupplier, 
+                                travelVySupplier, 
+                                travelOmegaSupplier, 
+                                travelFieldRelativeSupplier, 
+                                travelResetYawSupplier, 
+                                false
+                            );
+                        }),
+                    intake.grabCommand()
+                );
+                break;
+            case SHOOT:
+                CommandScheduler.getInstance().schedule(
+                    new InstantCommand(() -> {
+                            poseTracker.configureDefaultCommands(
+                                travelVxSupplier, 
+                                travelVySupplier, 
+                                travelOmegaSupplier, 
+                                travelFieldRelativeSupplier, 
+                                travelResetYawSupplier, 
+                                false
+                            );
+                        }),
+                    intake.stowCommand(),
+                    poseTracker.rotateTo(Rotation2d.fromDegrees(180))
+                );
+                break;
+            case CLIMB:
+                CommandScheduler.getInstance().schedule(
+                    new InstantCommand(() -> {
+                            poseTracker.configureDefaultCommands(
+                                travelVxSupplier, 
+                                travelVySupplier, 
+                                travelOmegaSupplier, 
+                                travelFieldRelativeSupplier, 
+                                travelResetYawSupplier, 
+                                false
+                            );
+                        }),
+                    intake.stowCommand()
                 );
                 break;
             case TEST:
@@ -155,7 +201,7 @@ public final class SubsystemManager {
                 );
                 break;
             default:
-                // En esta versión, otros estados también van a TRAVEL.
+                // Todos los demás estados se redirigen a TRAVEL.
                 setState(RobotState.TRAVEL);
                 break;
         }
