@@ -20,7 +20,8 @@ public class IntakeConstants {
 
     //TODO Asignar IDs correctos de los TalonFX del intake.
 
-    public static final int SPIN_TALONFX_ID = 20;
+    public static final int SPIN_BACK_TALONFX_ID = 20;
+    public static final int SPIN_FRONT_TALONFX_ID = 22;
     public static final int PIVOT_TALONFX_ID = 21;
 
     // --------------------------------------------------------------------

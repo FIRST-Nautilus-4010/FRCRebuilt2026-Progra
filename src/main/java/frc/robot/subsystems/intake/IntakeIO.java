@@ -7,7 +7,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 /**
  * Gestiona el hardware del intake:
  * <ul>
- *   <li>Motor de giro (spin)</li>
+ *   <li>Motor de giro front (spinFront)</li>
+ *   <li>Motor de giro back (spinBack)</li>
  *   <li>Motor de pivote (pivot)</li>
  * </ul>
  *
@@ -18,18 +19,20 @@ import com.ctre.phoenix6.hardware.TalonFX;
  * </ul>
  */
 public class IntakeIO {
-    private final TalonFX spinMotor;
+    private final TalonFX spinBackMotor;
+    private final TalonFX spinFrontMotor;
     private final TalonFX pivotMotor;
     /**
      * Crea un nuevo IntakeIO.
      *
-     * @param spinTalonFxId   ID CAN del TalonFX de giro
-     * @param pivotTalonFxId  ID CAN del TalonFX del pivote
+     * @param spinBackTalonFxId ID CAN del TalonFX de giro back
+     * @param pivotTalonFxId    ID CAN del TalonFX del pivote
      */
     
     public IntakeIO() {
-        this.spinMotor = new TalonFX(IntakeConstants.SPIN_TALONFX_ID);
+        this.spinBackMotor = new TalonFX(IntakeConstants.SPIN_BACK_TALONFX_ID);
         this.pivotMotor = new TalonFX(IntakeConstants.PIVOT_TALONFX_ID);
+        this.spinFrontMotor = new TalonFX(IntakeConstants.SPIN_FRONT_TALONFX_ID);
     }
 
     /** Obtiene la posición actual del motor del pivote en radianes. */
@@ -38,16 +41,20 @@ public class IntakeIO {
     }
 
     public double getSpinVelocityRPS() {
-        return spinMotor.getVelocity().getValueAsDouble();
+        return spinBackMotor.getVelocity().getValueAsDouble();
     }
     
     public void stopMotors() {
-        spinMotor.stopMotor();
+        spinBackMotor.stopMotor();
         pivotMotor.stopMotor();
     }
 
-    public TalonFX getSpinMotor() {
-        return spinMotor;
+    public TalonFX getspinBackMotor() {
+        return spinBackMotor;
+    }
+
+    public TalonFX getspinFrontMotor() {
+        return spinFrontMotor;
     }
 
     public TalonFX getPivotMotor() {

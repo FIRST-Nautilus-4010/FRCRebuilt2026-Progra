@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.PoseTracker;
@@ -123,20 +124,32 @@ public final class SubsystemManager {
                 
                 CommandScheduler.getInstance().schedule(
                     new ParallelCommandGroup(
-                        poseTracker.setSpeeds(
-                            travelVxSupplier,
-                            travelVySupplier,
-                            travelOmegaSupplier,
-                            travelFieldRelativeSupplier,
-                            travelResetYawSupplier,
-                            false
-                        ),
+                        new InstantCommand(() -> {
+                            poseTracker.configureDefaultCommands(
+                                travelVxSupplier, 
+                                travelVySupplier, 
+                                travelOmegaSupplier, 
+                                travelFieldRelativeSupplier, 
+                                travelResetYawSupplier, 
+                                false
+                            );
+                        }),
                         intake.stowCommand()
                     )
                 );
                 break;
             case TEST:
                 CommandScheduler.getInstance().schedule(
+                    new InstantCommand(() -> {
+                            poseTracker.configureDefaultCommands(
+                                travelVxSupplier, 
+                                travelVySupplier, 
+                                travelOmegaSupplier, 
+                                travelFieldRelativeSupplier, 
+                                travelResetYawSupplier, 
+                                true
+                            );
+                        }),
                     intake.grabCommand(),
                     poseTracker.rotateTo(Rotation2d.fromDegrees(90))
                 );
