@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * Clase central de configuración del robot.
@@ -53,6 +54,12 @@ public class RobotContainer {
         () -> !driverJoystick.getRightBumperButton(),
         () -> driverJoystick.getAButton()
     );
+
+    Trigger testTrigger = new Trigger(() -> driverJoystick.getYButton());
+    testTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.TEST)));
+
+    Trigger travelTrigger = new Trigger(() -> driverJoystick.getXButton());
+    travelTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.TRAVEL)));
   }
 
   /**
