@@ -96,6 +96,17 @@ public class PoseTracker {
     // API PRINCIPAL
     // --------------------------------------------------------------------
 
+    public void configureDefaultCommands(Supplier<Double> vx, Supplier<Double> vy, Supplier<Double> omega, Supplier<Boolean> fieldRelative, Supplier<Boolean> resetYaw, boolean assistedMode) {
+        swerve.setDefaultCommand(setSpeeds(
+                vx,
+                vy,
+                omega,
+                fieldRelative,
+                resetYaw,
+                assistedMode 
+        ));
+    }
+
     /** Devuelve la pose estimada actual del robot. */
     public Pose2d getPose() {
         return poseEstimator.getEstimatedPosition();
