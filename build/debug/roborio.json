@@ -1,0 +1,9 @@
+[
+  {
+    "type": "java",
+    "name": "frcJava",
+    "port": 8349,
+    "target": "10.40.10.2",
+    "project": "FRCRebuilt2026-Progra"
+  }
+]

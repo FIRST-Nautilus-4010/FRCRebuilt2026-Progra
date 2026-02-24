@@ -39,6 +39,10 @@ public class RobotContainer {
     subsystemManager.initialize();
   }
 
+  public void initializeTeleOp() {
+    subsystemManager.executeState(RobotState.TRAVEL);
+  }
+
   /**
    * Configura los bindings de comandos:
    * <ul>

@@ -171,6 +171,8 @@ public class PoseTracker {
     // --------------------------------------------------------------------
 
     private double[] getTargetVector() {
+        LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 2); // Asegura que estamos en el pipeline correcto
+
         boolean hasTarget = LimelightHelpers.getTV(LIMELIGHT_NAME);
         double targetArea = LimelightHelpers.getTA(LIMELIGHT_NAME);
 
@@ -190,6 +192,8 @@ public class PoseTracker {
      *         o vacío si no hay medición confiable.
      */
     private Optional<Pose2d> getVisionPose() {
+        LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 0); // Asegura que estamos en el pipeline correcto
+
         boolean hasTarget = LimelightHelpers.getTV(LIMELIGHT_NAME);
         double targetArea = LimelightHelpers.getTA(LIMELIGHT_NAME);
 

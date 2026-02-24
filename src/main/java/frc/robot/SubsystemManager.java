@@ -78,7 +78,7 @@ public final class SubsystemManager {
      */
     public void initialize() {
         // Estado inicial: TRAVEL (conducción normal del chasis).
-        scheduleState(RobotState.TRAVEL);
+        executeState(RobotState.TRAVEL);
     }
 
     /**
