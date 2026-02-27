@@ -77,7 +77,7 @@ public final class Constants {
     public static final double D_Y = 0.0;
 
     // Ganancias PID para control de ángulo (theta).
-    public static final double P_Z = 60.0;
+    public static final double P_Z = 10;
     public static final double I_Z = 0.0;
     public static final double D_Z = 0.0;
 
@@ -106,7 +106,7 @@ public final class Constants {
     public static final double POS_TOLERANCE = 0.05;
 
     /** Tolerancia de ángulo para finalizar un movimiento auton (rad). */
-    public static final double ANG_TOLERANCE = Math.toRadians(5.0);
+    public static final double ANG_TOLERANCE = Math.toRadians(1.0);
 
     // --------------------------------------------------------------------
     // COVARIANZAS DE VISIÓN PARA EL POSE ESTIMATOR

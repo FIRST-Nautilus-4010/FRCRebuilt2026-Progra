@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutonomousConstants;
 import frc.robot.Constants.ChassisConstants;
 import frc.robot.subsystems.swerve.commands.DriveTo;
+import frc.robot.subsystems.swerve.commands.RotateTo;
 import frc.robot.subsystems.swerve.commands.SwerveDriveJoystick;
 import frc.robot.utils.PoseConfidenceTracker;
 import frc.robot.utils.CollisionDetector;
@@ -40,6 +41,8 @@ public class PoseTracker {
 
     /** Umbral mínimo de área de target para considerar la medición válida. */
     private static final double MIN_TARGET_AREA = 0.01;
+
+    private boolean assisted = false;
 
     // --- Estimador de pose y publicación ---
 
@@ -105,6 +108,8 @@ public class PoseTracker {
                 resetYaw,
                 assistedMode 
         ));
+
+        assisted = assistedMode;
     }
 
     /** Devuelve la pose estimada actual del robot. */
@@ -138,8 +143,7 @@ public class PoseTracker {
      * manteniendo la posición X/Y actual.
      */
     public Command rotateTo(Rotation2d angle) {
-        Pose2d current = getPose();
-        return new DriveTo(new Pose2d(current.getX(), current.getY(), angle), swerve, this);
+        return new RotateTo(angle, swerve, this);
     }
 
     /**
@@ -171,7 +175,7 @@ public class PoseTracker {
     // --------------------------------------------------------------------
 
     private double[] getTargetVector() {
-        LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 2); // Asegura que estamos en el pipeline correcto
+        LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 1); // Asegura que estamos en el pipeline correcto
 
         boolean hasTarget = LimelightHelpers.getTV(LIMELIGHT_NAME);
         double targetArea = LimelightHelpers.getTA(LIMELIGHT_NAME);
@@ -261,23 +265,27 @@ public class PoseTracker {
         }
 
         // ======= 3. Actualizaciones de visión (AprilTags / Limelight) =======
-        Optional<Pose2d> visionMeasurement = getVisionPose();
+        if (!assisted) {
+            Optional<Pose2d> visionMeasurement = getVisionPose();
+        
 
-        if (visionMeasurement.isPresent()) {
-            Pose2d visionPose = visionMeasurement.get();
-            double timestamp = getLastVisionTimestamp();
+            if (visionMeasurement.isPresent()) {
+                Pose2d visionPose = visionMeasurement.get();
+                double timestamp = getLastVisionTimestamp();
 
-            // Si aún no hemos fijado la posición inicial con visión,
-            // reseteamos completamente la odometría a la pose de la cámara.
-            if (!initialPoseSetFromVision) {
-                resetOdometry(visionPose);
-                initialPoseSetFromVision = true;
-                SmartDashboard.putString("Init Pose Source", "Limelight");
-            }
+                // Si aún no hemos fijado la posición inicial con visión,
+                // reseteamos completamente la odometría a la pose de la cámara.
+                if (!initialPoseSetFromVision) {
+                    resetOdometry(visionPose);
+                    initialPoseSetFromVision = true;
+                    SmartDashboard.putString("Init Pose Source", "Limelight");
+                }
 
-            // Solo fusiona visión si el tracker de confianza lo permite.
-            if (confidenceTracker.shouldTrustVision(visionPose, getPose())) {
-                poseEstimator.addVisionMeasurement(visionPose, timestamp);
+                // Solo fusiona visión si el tracker de confianza lo permite.
+                if (confidenceTracker.shouldTrustVision(visionPose, getPose())) {
+                    poseEstimator.addVisionMeasurement(visionPose, timestamp);
+                }
+                
             }
         }
 

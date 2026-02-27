@@ -147,7 +147,7 @@ public final class SubsystemManager {
                                 travelOmegaSupplier, 
                                 travelFieldRelativeSupplier, 
                                 travelResetYawSupplier, 
-                                false
+                                true
                             );
                         }),
                     intake.grabCommand()
