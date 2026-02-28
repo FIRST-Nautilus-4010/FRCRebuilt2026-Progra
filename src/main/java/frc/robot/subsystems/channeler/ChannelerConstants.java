@@ -60,7 +60,7 @@ public class ChannelerConstants {
 
     // TODO Ajustar valores de velocidad del channeler.
 
-    public static final double FEED_VELOCITY = 10.0; // rotaciones por segundo
+    public static final double FEED_VELOCITY = -10.0; // rotaciones por segundo
 
-    public static final double RELEASE_VELOCITY = -10.0; // rotaciones por segundo
+    public static final double RELEASE_VELOCITY = 10.0; // rotaciones por segundo
 }
