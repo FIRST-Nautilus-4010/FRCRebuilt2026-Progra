@@ -19,17 +19,14 @@ import com.ctre.phoenix6.hardware.TalonFX;
  */
 public class ChannelerIO {
     private final TalonFX spinMotor;
-    private final TalonFX spinMotorSecondary;
     /**
      * Crea un nuevo ChannelerIO.
      *
      * @param spinTalonFxId   ID CAN del TalonFX de giro
-     * @param spinMotorSecondaryTalonFxId  ID CAN del TalonFX del motor secundario
      */
     
     public ChannelerIO() {
         this.spinMotor = new TalonFX(ChannelerConstants.SPIN_TALONFX_ID);
-        this.spinMotorSecondary = new TalonFX(ChannelerConstants.SPIN_SECONDARY_TALONFX_ID);
     }
 
     public double getSpinVelocityRPS() {
@@ -38,14 +35,9 @@ public class ChannelerIO {
     
     public void stopMotors() {
         spinMotor.stopMotor();
-        spinMotorSecondary.stopMotor();
     }
 
     public TalonFX getSpinMotor() {
         return spinMotor;
-    }
-
-    public TalonFX getSpinMotorSecondary() {
-        return spinMotorSecondary;
     }
 }

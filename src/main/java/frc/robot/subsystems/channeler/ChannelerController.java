@@ -1,10 +1,8 @@
 package frc.robot.subsystems.channeler;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
@@ -28,9 +26,6 @@ public class ChannelerController {
     /** Motor de giro. */
     private final TalonFX spinMotor;
 
-    /** Motor del pivote. */
-    private final TalonFX spinMotorSecondary;
-
     // --- Configuración Phoenix 6 ---
 
     /** Configuración del TalonFX de giro. */
@@ -49,11 +44,9 @@ public class ChannelerController {
      * Crea un controlador para un shooter.
      *
      * @param spinMotor   TalonFX usado como spin (giro)
-     * @param spinMotorSecondary TalonFX usado como spinMotorSecondary (motor secundario)
      */
-    public ChannelerController(TalonFX spinMotor, TalonFX spinMotorSecondary) {
+    public ChannelerController(TalonFX spinMotor) {
         this.spinMotor = spinMotor;
-        this.spinMotorSecondary = spinMotorSecondary;
 
         // Instancia configuraciones vacías que luego llenamos con nuestras constantes.
         this.spinConfig = new TalonFXConfiguration();
@@ -70,10 +63,7 @@ public class ChannelerController {
 
         // Aplica las configuraciones a los TalonFX.
         this.spinMotor.getConfigurator().apply(spinConfig);
-        this.spinMotorSecondary.getConfigurator().apply(spinConfig);
 
-        // Establece el motor secundario para que siga al principal.
-        this.spinMotorSecondary.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     // --------------------------------------------------------------------

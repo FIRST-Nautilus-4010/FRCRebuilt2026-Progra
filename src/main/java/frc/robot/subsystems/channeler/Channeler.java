@@ -12,7 +12,7 @@ public class Channeler extends SubsystemBase{
 
     public Channeler() {
         this.io = new ChannelerIO();
-        this.controller = new ChannelerController(io.getSpinMotor(), io.getSpinMotorSecondary());
+        this.controller = new ChannelerController(io.getSpinMotor());
     }
 
     public Command feedCommand() {

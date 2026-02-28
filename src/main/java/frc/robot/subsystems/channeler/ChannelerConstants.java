@@ -18,10 +18,7 @@ public class ChannelerConstants {
     // IDs DE DISPOSITIVOS (CTR)
     // --------------------------------------------------------------------
 
-    //TODO Asignar IDs correctos de los TalonFX del channeler.
-
-    public static final int SPIN_TALONFX_ID = 20;
-    public static final int SPIN_SECONDARY_TALONFX_ID = 21;
+    public static final int SPIN_TALONFX_ID = 4;
 
     // --------------------------------------------------------------------
     // MOTION MAGIC - SPIN (VELOCIDAD) 
@@ -63,7 +60,7 @@ public class ChannelerConstants {
 
     // TODO Ajustar valores de velocidad del channeler.
 
-    public static final double FEED_VELOCITY = 15.0; // rotaciones por segundo
+    public static final double FEED_VELOCITY = 10.0; // rotaciones por segundo
 
     public static final double RELEASE_VELOCITY = -10.0; // rotaciones por segundo
 }
