@@ -19,20 +19,19 @@ public class IntakeConstants {
     // --------------------------------------------------------------------
 
     //TODO Asignar IDs correctos de los TalonFX del intake.
-
-    public static final int SPIN_BACK_TALONFX_ID = 1;
+    public static final int PIVOT_TALONFX_ID = 1;
     public static final int SPIN_FRONT_TALONFX_ID = 2;
-    public static final int PIVOT_TALONFX_ID = 3;
+    public static final int SPIN_BACK_TALONFX_ID = 3;
 
     // --------------------------------------------------------------------
     // LIMITES DE SOFTWARE
     // --------------------------------------------------------------------
     
     /** Límite superior de posición del pivote (radianes). */
-    public static final double PIVOT_SOFT_LIMIT_FORWARD = Math.toRadians(90);
+    public static final double PIVOT_SOFT_LIMIT_FORWARD = 0;
     
     /** Límite inferior de posición del pivote (radianes). */
-    public static final double PIVOT_SOFT_LIMIT_REVERSE = Math.toRadians(-90);
+    public static final double PIVOT_SOFT_LIMIT_REVERSE = -2.584483556353203234;
 
     // --------------------------------------------------------------------
     // GEOMETRÍA Y CONVERSIONES
@@ -47,17 +46,17 @@ public class IntakeConstants {
      * TODO Conseguir la relacion correcta de rotaciones a radianes del intake.
      * 
      */
-    public static final double ROT_2_RAD = 0;
+    public static final double ROT_2_RAD = 0.209439510239319549;
 
     // --------------------------------------------------------------------
     // MOTION MAGIC EXPO - PIVOT (POSICIÓN)
     // --------------------------------------------------------------------
 
     /** Velocidad de crucero de Motion Magic para el pivot (rot/s). */
-    public static final double MAGIC_MOTION_VELOCITY_STR = 95.0;
+    public static final double MAGIC_MOTION_VELOCITY_STR = 9;
 
     /** Aceleración de Motion Magic para el pivot (rot/s²). */
-    public static final double MAGIC_MOTION_ACCELERATION_STR = 950;
+    public static final double MAGIC_MOTION_ACCELERATION_STR = 10;
 
     /** Jerk de Motion Magic para el pivot (rot/s³). */
     public static final double MAGIC_MOTION_JERK_STR = 9500;
@@ -144,10 +143,10 @@ public class IntakeConstants {
 
     // TODO Ajustar valores de ángulo y velocidad del intake.
 
-    public static final double GRAB_ANGLE_RAD = 1.0;
-    public static final double GRAB_SPIN_RPS = 5.0;
+    public static final double GRAB_ANGLE_RAD = -2.584483556353203234;
+    public static final double GRAB_SPIN_RPS = 100.0;
 
-    public static final double RELEASE_ANGLE_RAD = 0.5;
+    public static final double RELEASE_ANGLE_RAD = -2.584483556353203234;
     public static final double RELEASE_SPIN_RPS = -3.0;
 
     public static final double STOW_ANGLE_RAD = 0.0;
