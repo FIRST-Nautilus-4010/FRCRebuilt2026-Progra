@@ -1,6 +1,8 @@
 package frc.robot.subsystems.channeler;
 
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 // TODO comentarios de la clase.
 
@@ -19,6 +21,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
  */
 public class ChannelerIO {
     private final TalonFX spinMotor;
+    private final TalonFX secondaryMotor;
+
     /**
      * Crea un nuevo ChannelerIO.
      *
@@ -27,6 +31,8 @@ public class ChannelerIO {
     
     public ChannelerIO() {
         this.spinMotor = new TalonFX(ChannelerConstants.SPIN_TALONFX_ID);
+        this.secondaryMotor = new TalonFX(ChannelerConstants.SPIN_SECONDARY_TALONFX_ID);
+        secondaryMotor.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     public double getSpinVelocityRPS() {

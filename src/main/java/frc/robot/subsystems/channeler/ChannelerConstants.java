@@ -18,7 +18,8 @@ public class ChannelerConstants {
     // IDs DE DISPOSITIVOS (CTR)
     // --------------------------------------------------------------------
 
-    public static final int SPIN_TALONFX_ID = 4;
+    public static final int SPIN_TALONFX_ID = 6;
+    public static final int SPIN_SECONDARY_TALONFX_ID = 7;
 
     // --------------------------------------------------------------------
     // MOTION MAGIC - SPIN (VELOCIDAD) 

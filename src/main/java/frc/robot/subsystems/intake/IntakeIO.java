@@ -1,6 +1,8 @@
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 // TODO comentarios de la clase.
 
@@ -21,7 +23,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 public class IntakeIO {
     private final TalonFX spinBackMotor;
     private final TalonFX spinFrontMotor;
-    private final TalonFX pivotMotor;
+    private final TalonFX pivotRMotor;
+    private final TalonFX pivotLMotor;
+
     /**
      * Crea un nuevo IntakeIO.
      *
@@ -31,13 +35,17 @@ public class IntakeIO {
     
     public IntakeIO() {
         this.spinBackMotor = new TalonFX(IntakeConstants.SPIN_BACK_TALONFX_ID);
-        this.pivotMotor = new TalonFX(IntakeConstants.PIVOT_TALONFX_ID);
+        this.pivotRMotor = new TalonFX(IntakeConstants.PIVOT_R_TALONFX_ID);
         this.spinFrontMotor = new TalonFX(IntakeConstants.SPIN_FRONT_TALONFX_ID);
+
+        this.pivotLMotor = new TalonFX(IntakeConstants.PIVOT_L_TALONFX_ID);
+
+        pivotLMotor.setControl(new Follower(pivotRMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     /** Obtiene la posición actual del motor del pivote en radianes. */
     public double getPivotPositionRad() {
-        return pivotMotor.getPosition().getValueAsDouble() * IntakeConstants.ROT_2_RAD;
+        return pivotRMotor.getPosition().getValueAsDouble() * IntakeConstants.ROT_2_RAD;
     }
 
     public double getSpinVelocityRPS() {
@@ -46,7 +54,7 @@ public class IntakeIO {
     
     public void stopMotors() {
         spinBackMotor.stopMotor();
-        pivotMotor.stopMotor();
+        pivotRMotor.stopMotor();
     }
 
     public TalonFX getspinBackMotor() {
@@ -58,6 +66,6 @@ public class IntakeIO {
     }
 
     public TalonFX getPivotMotor() {
-        return pivotMotor;
+        return pivotRMotor;
     }
 }
