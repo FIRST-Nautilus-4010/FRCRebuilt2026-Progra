@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -9,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.channeler.Channeler;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.PoseTracker;
 
 /**
@@ -28,16 +30,22 @@ public final class SubsystemManager {
     private final PoseTracker poseTracker;
     private final Intake intake;
     private final Channeler channeler;
+    private final Shooter shooter;
 
     /** Estado actual del robot. Solo se usa TRAVEL en esta versión. */
     private RobotState robotState = RobotState.TRAVEL;
 
     // --- Suppliers para controles de TRAVEL ---
     private Supplier<Double> travelVxSupplier;
-    private Supplier<Double> travelVySupplier;
-    private Supplier<Double> travelOmegaSupplier;
-    private Supplier<Boolean> travelFieldRelativeSupplier;
-    private Supplier<Boolean> travelResetYawSupplier;
+
+    // --- Suppliers para las flags de las asistencias ---
+    boolean assistX = false;
+    boolean assistY = false;
+    boolean assistTheta = false;
+    boolean aimEnabled = false;
+
+    Pose2d targetPose = new Pose2d(0, 0, new Rotation2d(0));
+    Pose2d aimPose = new Pose2d(0, 0, new Rotation2d(0));
 
     /**
      * Crea el gestor de subsistemas usando el subsistema swerve.
@@ -46,6 +54,7 @@ public final class SubsystemManager {
         this.poseTracker = new PoseTracker();
         this.intake = new Intake();
         this.channeler = new Channeler();
+        this.shooter = new Shooter();
     }
 
     /**
@@ -64,14 +73,25 @@ public final class SubsystemManager {
             Supplier<Double> vx,
             Supplier<Double> vy,
             Supplier<Double> omega,
-            Supplier<Boolean> fieldRelative,
             Supplier<Boolean> resetYaw
     ) {
         this.travelVxSupplier = vx;
-        this.travelVySupplier = vy;
-        this.travelOmegaSupplier = omega;
-        this.travelFieldRelativeSupplier = fieldRelative;
-        this.travelResetYawSupplier = resetYaw;
+
+        poseTracker.configureDefaultCommands(
+            vx, 
+            vy, 
+            omega, 
+            resetYaw,
+
+            () -> assistX,
+            () -> assistY,
+            () -> assistTheta,
+            () -> aimEnabled,
+
+            () -> targetPose,
+            () -> aimPose
+            
+        );
     }
 
     /**
@@ -128,17 +148,15 @@ public final class SubsystemManager {
                 CommandScheduler.getInstance().schedule(
                     new ParallelCommandGroup(
                         new InstantCommand(() -> {
-                            poseTracker.configureDefaultCommands(
-                                travelVxSupplier, 
-                                travelVySupplier, 
-                                travelOmegaSupplier, 
-                                travelFieldRelativeSupplier, 
-                                travelResetYawSupplier, 
-                                false
-                            );
+                            assistX = false;
+                            assistY = false;
+                            assistTheta = false;
+                            aimEnabled = false;
                         }),
+                        //intake.stopCommand(),
                         intake.stopCommand(),
-                        channeler.stopCommand()
+                        channeler.stopCommand(),
+                        shooter.stopCommand()
                         
                     )
                 );
@@ -146,67 +164,58 @@ public final class SubsystemManager {
             case INTAKE:
                 CommandScheduler.getInstance().schedule(
                     new InstantCommand(() -> {
-                            poseTracker.configureDefaultCommands(
-                                travelVxSupplier, 
-                                travelVySupplier, 
-                                travelOmegaSupplier, 
-                                travelFieldRelativeSupplier, 
-                                travelResetYawSupplier, 
-                                true
-                            );
+                            assistX = false;
+                            assistY = false;
+                            assistTheta = false;
+                            aimEnabled = false;
                         }),
-                    intake.grabCommand(),
-                    channeler.stopCommand()
+                    //intake.grabCommand(),
+                    intake.testRollersCommand(),
+                    channeler.stopCommand(),
+                    shooter.stopCommand()
                 );
                 break;
             case SHOOT:
                 CommandScheduler.getInstance().schedule(
                     new InstantCommand(() -> {
-                            poseTracker.configureDefaultCommands(
-                                travelVxSupplier, 
-                                travelVySupplier, 
-                                travelOmegaSupplier, 
-                                travelFieldRelativeSupplier, 
-                                travelResetYawSupplier, 
-                                false
-                            );
+                            assistX = false;
+                            assistY = false;
+                            assistTheta = false;
+                            aimEnabled = true;
+                            aimPose = new Pose2d(4.625, 4.033, new Rotation2d(180));
                         }),
-                    intake.stowCommand(),
+                    //intake.stowCommand(),
+                    intake.stopCommand(),
                     channeler.feedCommand(),
-                    poseTracker.rotateTo(Rotation2d.fromDegrees(180))
+                    //poseTracker.rotateTo(Rotation2d.fromDegrees(180)),
+                    shooter.shootCommand()
                 );
                 break;
             case CLIMB:
                 CommandScheduler.getInstance().schedule(
                     new InstantCommand(() -> {
-                            poseTracker.configureDefaultCommands(
-                                travelVxSupplier, 
-                                travelVySupplier, 
-                                travelOmegaSupplier, 
-                                travelFieldRelativeSupplier, 
-                                travelResetYawSupplier, 
-                                false
-                            );
+                            assistX = false;
+                            assistY = false;
+                            assistTheta = false;
+                            aimEnabled = false;
                         }),
-                    intake.stowCommand(),
-                    channeler.stopCommand()
+                    //intake.stowCommand(),
+                    channeler.stopCommand(),
+                    intake.stopCommand(),
+                    shooter.stopCommand()
                 );
                 break;
             case TEST:
                 CommandScheduler.getInstance().schedule(
                     new InstantCommand(() -> {
-                            poseTracker.configureDefaultCommands(
-                                travelVxSupplier, 
-                                travelVySupplier, 
-                                travelOmegaSupplier, 
-                                travelFieldRelativeSupplier, 
-                                travelResetYawSupplier, 
-                                true
-                            );
+                            assistX = false;
+                            assistY = false;
+                            assistTheta = false;
+                            aimEnabled = false;
                         }),
-                    intake.grabCommand(),
+                    //intake.grabCommand(),
                     channeler.feedCommand(),
-                    poseTracker.rotateTo(Rotation2d.fromDegrees(90))
+                    shooter.shootCommand()
                 );
                 break;
             default:

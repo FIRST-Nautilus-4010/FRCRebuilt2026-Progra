@@ -13,9 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutonomousConstants;
 import frc.robot.Constants.ChassisConstants;
-import frc.robot.subsystems.swerve.commands.DriveTo;
-import frc.robot.subsystems.swerve.commands.RotateTo;
-import frc.robot.subsystems.swerve.commands.SwerveDriveJoystick;
+import frc.robot.subsystems.swerve.commands.Drive;
 import frc.robot.utils.PoseConfidenceTracker;
 import frc.robot.utils.CollisionDetector;
 import frc.robot.utils.LimelightHelpers;
@@ -41,8 +39,6 @@ public class PoseTracker {
 
     /** Umbral mínimo de área de target para considerar la medición válida. */
     private static final double MIN_TARGET_AREA = 0.01;
-
-    private boolean assisted = false;
 
     // --- Estimador de pose y publicación ---
 
@@ -99,17 +95,40 @@ public class PoseTracker {
     // API PRINCIPAL
     // --------------------------------------------------------------------
 
-    public void configureDefaultCommands(Supplier<Double> vx, Supplier<Double> vy, Supplier<Double> omega, Supplier<Boolean> fieldRelative, Supplier<Boolean> resetYaw, boolean assistedMode) {
-        swerve.setDefaultCommand(setSpeeds(
-                vx,
-                vy,
-                omega,
-                fieldRelative,
-                resetYaw,
-                assistedMode 
-        ));
+    public void configureDefaultCommands(
+        Supplier<Double> xInput,
+        Supplier<Double> yInput,
+        Supplier<Double> omegaInput,
+        Supplier<Boolean> resetYaw,
 
-        assisted = assistedMode;
+        Supplier<Boolean> assistX,
+        Supplier<Boolean> assistY,
+        Supplier<Boolean> assistTheta,
+        Supplier<Boolean> aimEnabled,
+
+        Supplier<Pose2d> targetPose,
+        Supplier<Pose2d> aimPose    
+    ) {
+        swerve.setDefaultCommand(
+            new Drive(
+                swerve,
+                this,
+
+                xInput,
+                yInput,
+                omegaInput,
+                resetYaw,
+
+                assistX,
+                assistY,
+                assistTheta,
+                aimEnabled,
+
+                targetPose,
+                aimPose
+            )
+        
+        );
     }
 
     /** Devuelve la pose estimada actual del robot. */
@@ -130,53 +149,11 @@ public class PoseTracker {
         );
     }
 
-    /** Crea un comando para conducir hasta una pose objetivo. */
-    public Command driveTo(Pose2d pose, boolean assistedMode) {
-        if (assistedMode) {
-            return new DriveTo(pose, swerve, this, this::getTargetVector);
-        }
-        return new DriveTo(pose, swerve, this);
-    }
-
-    /**
-     * Crea un comando para rotar hasta un ángulo objetivo
-     * manteniendo la posición X/Y actual.
-     */
-    public Command rotateTo(Rotation2d angle) {
-        return new RotateTo(angle, swerve, this);
-    }
-
-    /**
-     * Crea un comando de conducción manual con joystick.
-     *
-     * @param vx            velocidad X (m/s)
-     * @param vy            velocidad Y (m/s)
-     * @param omega         velocidad angular (rad/s)
-     * @param fieldRelative si es relativo al campo
-     * @param resetYaw      si se quiere resetear yaw
-     */
-    public Command setSpeeds(
-            Supplier<Double> vx,
-            Supplier<Double> vy,
-            Supplier<Double> omega,
-            Supplier<Boolean> fieldRelative,
-            Supplier<Boolean> resetYaw,
-            boolean assistedMode
-    ) {
-        if (assistedMode) {
-            return new SwerveDriveJoystick(
-                    swerve, vx, vy, omega, fieldRelative, resetYaw, this::getTargetVector);
-        }
-        return new SwerveDriveJoystick(swerve, vx, vy, omega, fieldRelative, resetYaw);
-    }
-
     // --------------------------------------------------------------------
     // VISIÓN (LIMELIGHT)
     // --------------------------------------------------------------------
 
     private double[] getTargetVector() {
-        LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 1); // Asegura que estamos en el pipeline correcto
-
         boolean hasTarget = LimelightHelpers.getTV(LIMELIGHT_NAME);
         double targetArea = LimelightHelpers.getTA(LIMELIGHT_NAME);
 
@@ -196,8 +173,6 @@ public class PoseTracker {
      *         o vacío si no hay medición confiable.
      */
     private Optional<Pose2d> getVisionPose() {
-        LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 0); // Asegura que estamos en el pipeline correcto
-
         boolean hasTarget = LimelightHelpers.getTV(LIMELIGHT_NAME);
         double targetArea = LimelightHelpers.getTA(LIMELIGHT_NAME);
 
@@ -265,27 +240,23 @@ public class PoseTracker {
         }
 
         // ======= 3. Actualizaciones de visión (AprilTags / Limelight) =======
-        if (!assisted) {
-            Optional<Pose2d> visionMeasurement = getVisionPose();
-        
+        Optional<Pose2d> visionMeasurement = getVisionPose();
 
-            if (visionMeasurement.isPresent()) {
-                Pose2d visionPose = visionMeasurement.get();
-                double timestamp = getLastVisionTimestamp();
+        if (visionMeasurement.isPresent()) {
+            Pose2d visionPose = visionMeasurement.get();
+            double timestamp = getLastVisionTimestamp();
 
-                // Si aún no hemos fijado la posición inicial con visión,
-                // reseteamos completamente la odometría a la pose de la cámara.
-                if (!initialPoseSetFromVision) {
-                    resetOdometry(visionPose);
-                    initialPoseSetFromVision = true;
-                    SmartDashboard.putString("Init Pose Source", "Limelight");
-                }
+            // Si aún no hemos fijado la posición inicial con visión,
+            // reseteamos completamente la odometría a la pose de la cámara.
+            if (!initialPoseSetFromVision) {
+                resetOdometry(visionPose);
+                initialPoseSetFromVision = true;
+                SmartDashboard.putString("Init Pose Source", "Limelight");
+            }
 
-                // Solo fusiona visión si el tracker de confianza lo permite.
-                if (confidenceTracker.shouldTrustVision(visionPose, getPose())) {
-                    poseEstimator.addVisionMeasurement(visionPose, timestamp);
-                }
-                
+            // Solo fusiona visión si el tracker de confianza lo permite.
+            if (confidenceTracker.shouldTrustVision(visionPose, getPose())) {
+                poseEstimator.addVisionMeasurement(visionPose, timestamp);
             }
         }
 

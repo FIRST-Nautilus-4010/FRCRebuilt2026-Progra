@@ -32,7 +32,7 @@ public class ChannelerIO {
     public ChannelerIO() {
         this.spinMotor = new TalonFX(ChannelerConstants.SPIN_TALONFX_ID);
         this.secondaryMotor = new TalonFX(ChannelerConstants.SPIN_SECONDARY_TALONFX_ID);
-        secondaryMotor.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        secondaryMotor.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
     public double getSpinVelocityRPS() {

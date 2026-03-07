@@ -18,15 +18,19 @@ public class Intake extends SubsystemBase{
     }
 
     public Command grabCommand() {
-        return new Move(IntakeConstants.GRAB_ANGLE_RAD, IntakeConstants.GRAB_SPIN_RPS, controller, io, this);
+        return new Move(IntakeConstants.GRAB_ANGLE_RAD, IntakeConstants.GRAB_SPIN_RPS, IntakeConstants.GRAB_SPIN_RPS_SECONDARY, controller, io, this);
     }
 
     public Command releaseCommand() {
-        return new Move(IntakeConstants.RELEASE_ANGLE_RAD, IntakeConstants.RELEASE_SPIN_RPS, controller, io, this);
+        return new Move(IntakeConstants.RELEASE_ANGLE_RAD, IntakeConstants.RELEASE_SPIN_RPS, IntakeConstants.RELEASE_SPIN_RPS_SECONDARY, controller, io, this);
     }
 
     public Command stowCommand() {
-        return new Move(IntakeConstants.STOW_ANGLE_RAD, IntakeConstants.STOW_SPIN_RPS, controller, io, this);
+        return new Move(IntakeConstants.STOW_ANGLE_RAD, IntakeConstants.STOW_SPIN_RPS, IntakeConstants.STOW_SPIN_RPS_SECONDARY, controller, io, this);
+    }
+
+    public Command testRollersCommand() {
+        return new Move(io.getPivotPositionRad(), IntakeConstants.GRAB_SPIN_RPS, IntakeConstants.GRAB_SPIN_RPS_SECONDARY, controller, io, this);
     }
 
     public Command stopCommand() {

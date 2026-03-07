@@ -12,10 +12,12 @@ public class Move extends Command {
   IntakeIO io;
   double angle;
   double spinVelocity;
+  double spinVelocitySecondary;
 
-  public Move(double angle, double spinVelocity, IntakeController controller, IntakeIO io, Intake intake) {
+  public Move(double angle, double spinVelocity, double spinVelocitySecondary, IntakeController controller, IntakeIO io, Intake intake) {
     this.angle = angle;
     this.spinVelocity = spinVelocity;
+    this.spinVelocitySecondary = spinVelocitySecondary;
     this.controller = controller;
     this.io = io;
 
@@ -25,7 +27,7 @@ public class Move extends Command {
   @Override
   public void execute() {
     controller.setAngle(angle);
-    controller.setVelocity(spinVelocity);
+    controller.setVelocity(spinVelocity, spinVelocitySecondary);
   }
 
   @Override

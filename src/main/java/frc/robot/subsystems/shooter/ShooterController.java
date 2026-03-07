@@ -71,9 +71,6 @@ public class ShooterController {
         // Aplica las configuraciones a los TalonFX.
         this.spinMotor.getConfigurator().apply(spinConfig);
         this.spinMotorSecondary.getConfigurator().apply(spinConfig);
-
-        // Establece el motor secundario para que siga al principal.
-        this.spinMotorSecondary.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     // --------------------------------------------------------------------

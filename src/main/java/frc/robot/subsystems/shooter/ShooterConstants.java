@@ -20,8 +20,8 @@ public class ShooterConstants {
 
     //TODO Asignar IDs correctos de los TalonFX del shooter.
 
-    public static final int SPIN_TALONFX_ID = 20;
-    public static final int SPIN_SECONDARY_TALONFX_ID = 21;
+    public static final int SPIN_TALONFX_ID = 8;
+    public static final int SPIN_SECONDARY_TALONFX_ID = 9;
 
     // --------------------------------------------------------------------
     // MOTION MAGIC - SPIN (VELOCIDAD) 
@@ -63,7 +63,7 @@ public class ShooterConstants {
 
     // TODO Ajustar valores de velocidad del shooter.
 
-    public static final double SHOOT_VELOCITY = 15.0; // rotaciones por segundo
+    public static final double SHOOT_VELOCITY = 100.0; // rotaciones por segundo
 
     public static final double RELEASE_VELOCITY = -10.0; // rotaciones por segundo
 }

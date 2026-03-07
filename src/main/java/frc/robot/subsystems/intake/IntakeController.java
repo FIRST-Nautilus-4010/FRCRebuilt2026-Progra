@@ -100,7 +100,7 @@ public class IntakeController {
      * Configura los límites de corriente y el modo neutral de ambos motores.
      */
     private void configureMotors() {
-        spinFrontMotor.setControl(new Follower(spinBackMotor.getDeviceID(), MotorAlignmentValue.Aligned));
+        //spinFrontMotor.setControl(new Follower(spinBackMotor.getDeviceID(), MotorAlignmentValue.Aligned));
 
         spinConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         spinConfig.CurrentLimits.SupplyCurrentLimit = 40;
@@ -189,12 +189,14 @@ public class IntakeController {
      *
      * @param velocityMps velocidad objetivo en rotaciones por segundo.
      */
-    public void setVelocity(double velocityRps) {
+    public void setVelocity(double velocityRps, double velocityRpsSecondary) {
         if (Math.abs(velocityRps) > 0.1) {
             double motorVelocity = velocityRps;
             spinBackMotor.setControl(velocityRequest.withVelocity(motorVelocity));
+            spinFrontMotor.setControl(velocityRequest.withVelocity(velocityRpsSecondary));
         } else {
             spinBackMotor.stopMotor();
+            spinFrontMotor.stopMotor();
         }
     }
 

@@ -55,7 +55,6 @@ public class RobotContainer {
         () -> -driverJoystick.getLeftY(),
         () -> -driverJoystick.getLeftX(),
         () -> -driverJoystick.getRightX(),
-        () -> !driverJoystick.getRightBumperButton(),
         () -> driverJoystick.getAButton()
     );
 

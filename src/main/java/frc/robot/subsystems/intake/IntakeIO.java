@@ -54,6 +54,7 @@ public class IntakeIO {
     
     public void stopMotors() {
         spinBackMotor.stopMotor();
+        spinFrontMotor.stopMotor();
         pivotRMotor.stopMotor();
     }
 

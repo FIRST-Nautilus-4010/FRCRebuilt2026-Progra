@@ -1,6 +1,8 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 // TODO comentarios de la clase.
 
@@ -30,6 +32,9 @@ public class ShooterIO {
     public ShooterIO() {
         this.spinMotor = new TalonFX(ShooterConstants.SPIN_TALONFX_ID);
         this.spinMotorSecondary = new TalonFX(ShooterConstants.SPIN_SECONDARY_TALONFX_ID);
+
+        // Establece el motor secundario para que siga al principal.
+        this.spinMotorSecondary.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     public double getSpinVelocityRPS() {
@@ -38,7 +43,6 @@ public class ShooterIO {
     
     public void stopMotors() {
         spinMotor.stopMotor();
-        spinMotorSecondary.stopMotor();
     }
 
     public TalonFX getSpinMotor() {
