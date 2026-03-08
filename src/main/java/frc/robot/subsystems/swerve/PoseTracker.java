@@ -17,6 +17,7 @@ import frc.robot.subsystems.swerve.commands.Drive;
 import frc.robot.utils.PoseConfidenceTracker;
 import frc.robot.utils.CollisionDetector;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.LimelightHelpers.PoseEstimate;
 
 /**
  * Encapsula toda la lógica de estimación de pose del robot.
@@ -35,7 +36,7 @@ public class PoseTracker {
     // --- Constantes internas ---
 
     /** Nombre de la cámara Limelight usada para odometría. */
-    private static final String LIMELIGHT_NAME = "limelight";
+    private static final String LIMELIGHT_NAME = "limelight-comosea";
 
     /** Umbral mínimo de área de target para considerar la medición válida. */
     private static final double MIN_TARGET_AREA = 0.01;
@@ -177,8 +178,9 @@ public class PoseTracker {
         double targetArea = LimelightHelpers.getTA(LIMELIGHT_NAME);
 
         if (hasTarget && targetArea > MIN_TARGET_AREA) {
+            LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, getPose().getRotation().getDegrees(),0,0,0,0,0);
             Pose2d botPose =
-                    LimelightHelpers.getBotPose2d_wpiBlue(LIMELIGHT_NAME);
+                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME).pose;
             return Optional.of(botPose);
         }
 

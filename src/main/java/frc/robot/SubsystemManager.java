@@ -180,7 +180,7 @@ public final class SubsystemManager {
                     new InstantCommand(() -> {
                             assistX = false;
                             assistY = false;
-                            assistTheta = false;
+                            assistTheta = true;
                             aimEnabled = true;
                             aimPose = new Pose2d(4.625, 4.033, new Rotation2d(180));
                         }),
