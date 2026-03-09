@@ -1,8 +1,8 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.shooter.commands.SetVel;
 
 // TODO comentarios de la clase.
 
@@ -16,14 +16,14 @@ public class Shooter extends SubsystemBase{
     }
 
     public Command shootCommand() {
-        return new InstantCommand(() -> controller.setVelocity(ShooterConstants.SHOOT_VELOCITY), this);
+        return new SetVel(this, controller, io, ShooterConstants.SHOOT_VELOCITY);
     }
 
     public Command releaseCommand() {
-        return new InstantCommand(() -> controller.setVelocity(ShooterConstants.RELEASE_VELOCITY), this);
+        return new SetVel(this, controller, io, ShooterConstants.RELEASE_VELOCITY);
     }
 
     public Command stopCommand() {
-        return new InstantCommand(() -> io.stopMotors(), this);
+        return new SetVel(this, controller, io, 0);
     }
 }

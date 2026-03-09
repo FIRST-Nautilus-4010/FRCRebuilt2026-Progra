@@ -3,14 +3,14 @@ package frc.robot.subsystems.swerve;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutonomousConstants;
 import frc.robot.Constants.ChassisConstants;
 import frc.robot.subsystems.swerve.commands.Drive;
@@ -36,10 +36,8 @@ public class PoseTracker {
     // --- Constantes internas ---
 
     /** Nombre de la cámara Limelight usada para odometría. */
-    private static final String LIMELIGHT_NAME = "limelight-comosea";
-
-    /** Umbral mínimo de área de target para considerar la medición válida. */
-    private static final double MIN_TARGET_AREA = 0.01;
+    private static final String LIMELIGHT_2 = "limelight-comosea";
+    private static final String LIMELIGHT_3 = "limelight-three";
 
     // --- Estimador de pose y publicación ---
 
@@ -56,6 +54,7 @@ public class PoseTracker {
 
     /** Referencia al subsistema de swerve, del que se obtienen módulos y gyro. */
     private final Swerve swerve;
+    
 
     // --- Utilidades auxiliares ---
 
@@ -67,6 +66,8 @@ public class PoseTracker {
 
     /** Indica si ya se inicializó la pose usando visión (Limelight). */
     private boolean initialPoseSetFromVision = false;
+
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 
     /**
      * Crea un {@link PoseTracker} asociado a un subsistema swerve.
@@ -154,48 +155,137 @@ public class PoseTracker {
     // VISIÓN (LIMELIGHT)
     // --------------------------------------------------------------------
 
-    private double[] getTargetVector() {
-        boolean hasTarget = LimelightHelpers.getTV(LIMELIGHT_NAME);
-        double targetArea = LimelightHelpers.getTA(LIMELIGHT_NAME);
+    private Optional<PoseEstimate> getVisionEstimate(String limelight) {
 
-        if (hasTarget && targetArea > MIN_TARGET_AREA) {
-            double tx = LimelightHelpers.getTX(LIMELIGHT_NAME);
-            double distance = 0.03904252879 / targetArea; // Distancia estimada en metros
-            return new double[] {Math.toRadians(tx), distance};
+        if (!LimelightHelpers.getTV(limelight))
+            return Optional.empty();
+
+        LimelightHelpers.SetRobotOrientation(
+                limelight,
+                getPose().getRotation().getDegrees(),
+                swerve.getGyroRate(), swerve.getPitch(),
+                swerve.getPitchRate(), swerve.getRoll(),
+                swerve.getRollRate()
+        );
+
+        PoseEstimate estimate;
+
+        if(alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+            estimate = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelight);
+        } else {
+            estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
         }
 
-        return new double[] {0.0, 0.0};
+        
+        if (estimate == null || estimate.tagCount == 0)
+            return Optional.empty();
+
+        return Optional.of(estimate);
     }
 
-    /**
-     * Devuelve la pose estimada por la Limelight si hay un target válido.
-     *
-     * @return {@link Optional} con la pose de visión en coordenadas WPI Blue,
-     *         o vacío si no hay medición confiable.
-     */
-    private Optional<Pose2d> getVisionPose() {
-        boolean hasTarget = LimelightHelpers.getTV(LIMELIGHT_NAME);
-        double targetArea = LimelightHelpers.getTA(LIMELIGHT_NAME);
+    private boolean visionGate(PoseEstimate estimate) {
 
-        if (hasTarget && targetArea > MIN_TARGET_AREA) {
-            LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, getPose().getRotation().getDegrees(),0,0,0,0,0);
-            Pose2d botPose =
-                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME).pose;
-            return Optional.of(botPose);
+        if (estimate.avgTagDist > 6.0)
+            return false;
+
+        if (Math.abs(swerve.getGyroRate()) > 720)
+            return false;
+
+        Pose2d current = getPose();
+        Pose2d vision = estimate.pose;
+
+        double dx = current.getX() - vision.getX();
+        double dy = current.getY() - vision.getY();
+
+        double error = Math.hypot(dx, dy);
+
+        return error < 2.0;
+    }
+
+    private void applyDynamicVisionStdDevs(PoseEstimate estimate) {
+
+        double distanceFactor = Math.max(estimate.avgTagDist, 1.0);
+
+        double tagFactor;
+        if (estimate.tagCount >= 3) tagFactor = 0.4;
+        else if (estimate.tagCount == 2) tagFactor = 0.7;
+        else tagFactor = 1.2;
+
+        double gyroFactor = 1.0 + Math.abs(swerve.getGyroRate()) / 500.0;
+
+        double xyStd = 0.03 * distanceFactor * tagFactor * gyroFactor;
+        double thetaStd = 0.05 * distanceFactor * gyroFactor;
+
+        poseEstimator.setVisionMeasurementStdDevs(
+                VecBuilder.fill(xyStd, xyStd, thetaStd)
+        );
+    }
+
+    private void processVision(String limelight) {
+
+        Optional<PoseEstimate> vision = getVisionEstimate(limelight);
+
+        if (vision.isEmpty())
+            return;
+
+        PoseEstimate estimate = vision.get();
+
+        if (!visionGate(estimate))
+            return;
+
+        applyDynamicVisionStdDevs(estimate);
+
+        Pose2d pose = estimate.pose;
+        double timestamp = estimate.timestampSeconds;
+
+        if (!initialPoseSetFromVision) {
+
+            resetOdometry(pose);
+            initialPoseSetFromVision = true;
+
+            SmartDashboard.putString(
+                    "Init Pose Source",
+                    limelight
+            );
         }
 
-        return Optional.empty();
+        if (confidenceTracker.shouldTrustVision(pose, getPose())) {
+
+            poseEstimator.addVisionMeasurement(
+                    pose,
+                    timestamp
+            );
+        }
     }
 
-    /**
-     * Timestamp (segundos FPGA) correspondiente a la última medición de visión.
-     *
-     * Se obtiene restando la latencia de captura que entrega Limelight a
-     * {@link Timer#getFPGATimestamp()}.
-     */
-    private double getLastVisionTimestamp() {
-        double captureLatencyMs = LimelightHelpers.getLatency_Capture(LIMELIGHT_NAME);
-        return Timer.getFPGATimestamp() - captureLatencyMs / 1000.0;
+    private void applySmartCrop(String limelight) {
+
+        if (!LimelightHelpers.getTV(limelight)) {
+
+            LimelightHelpers.setCropWindow(
+                    limelight,
+                    -1,1,-1,1
+            );
+
+            return;
+        }
+
+        double tx = LimelightHelpers.getTX(limelight);
+
+        double center = tx / 29.8;
+
+        double width = 0.35;
+
+        double xmin = Math.max(-1, center - width);
+        double xmax = Math.min(1, center + width);
+
+        LimelightHelpers.setCropWindow(
+                limelight,
+                xmin,
+                xmax,
+                -1,
+                1
+        );
     }
 
     // --------------------------------------------------------------------
@@ -229,38 +319,13 @@ public class PoseTracker {
         // ======= 2. Skid detection / confianza en visión =======
         confidenceTracker.update(swerve);
 
-        if (confidenceTracker.isSkidding()) {
-            // Cuando el robot patina, confiamos menos en la odometría
-            // y por tanto aumentamos la varianza asociada a las mediciones de visión.
-            poseEstimator.setVisionMeasurementStdDevs(
-                    AutonomousConstants.LOW_CONFIDENCE_STD
-            );
-        } else {
-            poseEstimator.setVisionMeasurementStdDevs(
-                    AutonomousConstants.NORMAL_CONFIDENCE_STD
-            );
-        }
-
         // ======= 3. Actualizaciones de visión (AprilTags / Limelight) =======
-        Optional<Pose2d> visionMeasurement = getVisionPose();
 
-        if (visionMeasurement.isPresent()) {
-            Pose2d visionPose = visionMeasurement.get();
-            double timestamp = getLastVisionTimestamp();
+        applySmartCrop(LIMELIGHT_2);
+        applySmartCrop(LIMELIGHT_3);
 
-            // Si aún no hemos fijado la posición inicial con visión,
-            // reseteamos completamente la odometría a la pose de la cámara.
-            if (!initialPoseSetFromVision) {
-                resetOdometry(visionPose);
-                initialPoseSetFromVision = true;
-                SmartDashboard.putString("Init Pose Source", "Limelight");
-            }
-
-            // Solo fusiona visión si el tracker de confianza lo permite.
-            if (confidenceTracker.shouldTrustVision(visionPose, getPose())) {
-                poseEstimator.addVisionMeasurement(visionPose, timestamp);
-            }
-        }
+        processVision(LIMELIGHT_2);
+        processVision(LIMELIGHT_3);
 
         // ======= 4. Publicación a Dashboard / NT =======
         Pose2d estimatedPose = getPose();

@@ -4,14 +4,18 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import frc.robot.Constants.ChassisConstants;
 import frc.robot.subsystems.channeler.Channeler;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.PoseTracker;
+import frc.robot.utils.TejuinoBoard;
 
 /**
  * Gestor simple de subsistemas/estados del robot.
@@ -31,6 +35,7 @@ public final class SubsystemManager {
     private final Intake intake;
     private final Channeler channeler;
     private final Shooter shooter;
+    private final TejuinoBoard tejuino;
 
     /** Estado actual del robot. Solo se usa TRAVEL en esta versión. */
     private RobotState robotState = RobotState.TRAVEL;
@@ -39,13 +44,18 @@ public final class SubsystemManager {
     private Supplier<Double> travelVxSupplier;
 
     // --- Suppliers para las flags de las asistencias ---
-    boolean assistX = false;
-    boolean assistY = false;
-    boolean assistTheta = false;
-    boolean aimEnabled = false;
+    public boolean assistX = false;
+    public boolean assistY = false;
+    public boolean assistTheta = false;
+    public boolean aimEnabled = false;
 
-    Pose2d targetPose = new Pose2d(0, 0, new Rotation2d(0));
+    public Pose2d targetPose = new Pose2d(0, 0, new Rotation2d(0));
     Pose2d aimPose = new Pose2d(0, 0, new Rotation2d(0));
+    
+    StructPublisher<Pose2d> aimPosePublisher = 
+        NetworkTableInstance.getDefault()
+                    .getStructTopic("Aim Pose", Pose2d.struct)
+                    .publish();
 
     /**
      * Crea el gestor de subsistemas usando el subsistema swerve.
@@ -55,6 +65,7 @@ public final class SubsystemManager {
         this.intake = new Intake();
         this.channeler = new Channeler();
         this.shooter = new Shooter();
+        this.tejuino = new TejuinoBoard();
     }
 
     /**
@@ -89,9 +100,28 @@ public final class SubsystemManager {
             () -> aimEnabled,
 
             () -> targetPose,
-            () -> aimPose
+            this::calculateAimPose
             
         );
+    }
+
+    private Pose2d calculateAimPose() {
+        Pose2d pose = poseTracker.getPose();
+        
+        if (pose.getX() <= 4.625) {
+            aimPose = new Pose2d(4.625, 4.033, new Rotation2d(180));
+        } else if (pose.getY() >= 4.033) {
+            aimPose = new Pose2d(4.625, 6.0495, new Rotation2d(180));
+        } else{
+            aimPose = new Pose2d(4.625, 2.0165, new Rotation2d(0));
+        }
+
+        return aimPose;
+    }
+
+
+    public PoseTracker getPoseTracker() {
+        return poseTracker;
     }
 
     /**
@@ -102,6 +132,17 @@ public final class SubsystemManager {
     public void initialize() {
         // Estado inicial: TRAVEL (conducción normal del chasis).
         executeState(RobotState.TRAVEL);
+        tejuino.init(40);
+    }
+
+    public void disable() {
+        assistX = false;
+        assistY = false;
+        assistTheta = false;
+        aimEnabled = false;
+        ChassisConstants.MAX_VELOCITY = 0;
+        tejuino.all_leds_purple(1);
+        tejuino.all_leds_purple(2);
     }
 
     /**
@@ -126,7 +167,7 @@ public final class SubsystemManager {
         CommandScheduler.getInstance().cancelAll();
         scheduleState(state);
     }
-
+    
     /**
      * Programa el comportamiento asociado a un estado.
      * <p>
@@ -152,6 +193,9 @@ public final class SubsystemManager {
                             assistY = false;
                             assistTheta = false;
                             aimEnabled = false;
+                            ChassisConstants.MAX_VELOCITY = 3.77952;
+                            tejuino.all_leds_blue(1);
+                            tejuino.all_leds_blue(2);
                         }),
                         //intake.stopCommand(),
                         intake.stopCommand(),
@@ -168,6 +212,9 @@ public final class SubsystemManager {
                             assistY = false;
                             assistTheta = false;
                             aimEnabled = false;
+                            ChassisConstants.MAX_VELOCITY = 3.77952 / 2;
+                            tejuino.all_leds_yellow(1);
+                            tejuino.all_leds_yellow(2);
                         }),
                     //intake.grabCommand(),
                     intake.testRollersCommand(),
@@ -182,13 +229,14 @@ public final class SubsystemManager {
                             assistY = false;
                             assistTheta = true;
                             aimEnabled = true;
-                            aimPose = new Pose2d(4.625, 4.033, new Rotation2d(180));
+                            ChassisConstants.MAX_VELOCITY = 3.77952;
+                            tejuino.all_leds_red(1);
+                            tejuino.all_leds_red(2);
                         }),
                     //intake.stowCommand(),
                     intake.stopCommand(),
-                    channeler.feedCommand(),
+                    shooter.shootCommand().andThen(channeler.feedCommand())
                     //poseTracker.rotateTo(Rotation2d.fromDegrees(180)),
-                    shooter.shootCommand()
                 );
                 break;
             case CLIMB:
@@ -198,6 +246,9 @@ public final class SubsystemManager {
                             assistY = false;
                             assistTheta = false;
                             aimEnabled = false;
+                            ChassisConstants.MAX_VELOCITY = 3.77952;
+                            tejuino.all_leds_green(1);
+                            tejuino.all_leds_green(2);
                         }),
                     //intake.stowCommand(),
                     channeler.stopCommand(),
@@ -212,7 +263,10 @@ public final class SubsystemManager {
                             assistY = false;
                             assistTheta = false;
                             aimEnabled = false;
-                        }),
+                            ChassisConstants.MAX_VELOCITY = 3.77952;
+                            tejuino.all_leds_white(1);
+                            tejuino.all_leds_white(2);
+                        }), 
                     //intake.grabCommand(),
                     channeler.feedCommand(),
                     shooter.shootCommand()
@@ -234,5 +288,8 @@ public final class SubsystemManager {
     public void periodic() {
         poseTracker.periodic();
         SmartDashboard.putString("Robot State", robotState.toString());
+
+        SmartDashboard.putString("Aim Pose", calculateAimPose().toString());
+        aimPosePublisher.set(aimPose);
     }
 }

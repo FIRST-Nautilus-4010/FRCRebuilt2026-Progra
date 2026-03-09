@@ -2,12 +2,9 @@ package frc.robot;
 
 // TODO Mover constantes específicas de swerve a SwerveConstants.
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 /**
@@ -44,7 +41,7 @@ public final class Constants {
         new Translation2d(-TRACKWIDTH / 2.0,-WHEELBASE / 2.0));  // Back Right
 
     /** Velocidad lineal máxima del chasis (m/s). */
-    public static final double MAX_VELOCITY = 3.77952;
+    public static double MAX_VELOCITY = 3.77952;
 
     /** Velocidad angular máxima del chasis (rad/s). */
     public static final double MAX_ANG_SPD = 4.79 * Math.PI;
@@ -107,35 +104,5 @@ public final class Constants {
 
     /** Tolerancia de ángulo para finalizar un movimiento auton (rad). */
     public static final double ANG_TOLERANCE = Math.toRadians(1.0);
-
-    // --------------------------------------------------------------------
-    // COVARIANZAS DE VISIÓN PARA EL POSE ESTIMATOR
-    // --------------------------------------------------------------------
-
-    /** Desviación estándar base para X/Y en estado de confianza normal. */
-    public static final double NORMAL_STD = 0.003;
-
-    /** Matriz de desviaciones estándar para visión en estado de confianza normal. */
-    public static final Matrix<N3, N1> NORMAL_CONFIDENCE_STD;
-
-    static {
-      NORMAL_CONFIDENCE_STD = new Matrix<>(N3.instance, N1.instance);
-      NORMAL_CONFIDENCE_STD.set(0, 0, NORMAL_STD);              // X
-      NORMAL_CONFIDENCE_STD.set(1, 0, NORMAL_STD);              // Y
-      NORMAL_CONFIDENCE_STD.set(2, 0, Math.toRadians(3.0));     // Theta
     }
-
-    /** Desviación estándar base para X/Y en estado de baja confianza. */
-    public static final double LOW_STD = 0.05;
-
-    /** Matriz de desviaciones estándar para visión en estado de baja confianza. */
-    public static final Matrix<N3, N1> LOW_CONFIDENCE_STD;
-
-    static {
-      LOW_CONFIDENCE_STD = new Matrix<>(N3.instance, N1.instance);
-      LOW_CONFIDENCE_STD.set(0, 0, LOW_STD);                    // X
-      LOW_CONFIDENCE_STD.set(1, 0, LOW_STD);                    // Y
-      LOW_CONFIDENCE_STD.set(2, 0, Math.toRadians(5.0));        // Theta
-    }
-  }
 }

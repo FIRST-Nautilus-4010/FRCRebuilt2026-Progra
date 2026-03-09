@@ -131,34 +131,6 @@ public class Swerve extends SubsystemBase {
         };
     }
 
-    /** Heading actual del robot en grados. */
-    public double getHeading() {
-        if (usePigeon) {
-            return pigeon.getYaw().getValueAsDouble();
-        } else {
-            // NavX usa convención opuesta, por eso el signo negativo.
-            return -gyro.getAngle();
-        }
-    }
-
-    /** Pitch actual del robot en grados. */
-    public double getPitch() {
-        if (usePigeon) {
-            return pigeon.getPitch().getValueAsDouble();
-        } else {
-            return gyro.getPitch();
-        }
-    }
-
-    /** Roll actual del robot en grados. */
-    public double getRoll() {
-        if (usePigeon) {
-            return pigeon.getRoll().getValueAsDouble();
-        } else {
-            return gyro.getRoll();
-        }
-    }
-
     /** Devuelve la orientación actual como {@link Rotation2d}. */
     public Rotation2d getRotation2d() {
         return Rotation2d.fromDegrees(getHeading());
@@ -231,6 +203,58 @@ public class Swerve extends SubsystemBase {
             pigeon.reset();
         } else {
             gyro.reset();
+        }
+    }
+    
+    /** Heading actual del robot en grados. */
+    public double getHeading() {
+        if (usePigeon) {
+            return pigeon.getYaw().getValueAsDouble();
+        } else {
+            // NavX usa convención opuesta, por eso el signo negativo.
+            return -gyro.getAngle();
+        }
+    }
+
+    /** Pitch actual del robot en grados. */
+    public double getPitch() {
+        if (usePigeon) {
+            return pigeon.getPitch().getValueAsDouble();
+        } else {
+            return gyro.getPitch();
+        }
+    }
+
+    /** Roll actual del robot en grados. */
+    public double getRoll() {
+        if (usePigeon) {
+            return pigeon.getRoll().getValueAsDouble();
+        } else {
+            return gyro.getRoll();
+        }
+    }
+
+    public double getGyroRate() {
+        if (usePigeon) {
+            return pigeon.getAngularVelocityZWorld().getValueAsDouble();
+        } else {
+            return gyro.getRate();
+        }
+    }
+
+    public double getPitchRate() {
+        if (usePigeon) {
+            return pigeon.getAngularVelocityYWorld().getValueAsDouble();
+        } else {
+            return gyro.getRawGyroY();
+        }
+    }
+
+    public double getRollRate() {
+        if (usePigeon) {
+            return pigeon.getAngularVelocityXWorld().getValueAsDouble();
+        } else {
+            return gyro.getRawGyroX();
         }
     }
 
