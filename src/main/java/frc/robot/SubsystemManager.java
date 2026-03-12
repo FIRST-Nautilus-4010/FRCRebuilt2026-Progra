@@ -10,8 +10,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.ChassisConstants;
 import frc.robot.subsystems.channeler.Channeler;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.PoseTracker;
@@ -36,6 +38,7 @@ public final class SubsystemManager {
     private final Channeler channeler;
     private final Shooter shooter;
     private final TejuinoBoard tejuino;
+    private final Climber climber;
 
     /** Estado actual del robot. Solo se usa TRAVEL en esta versión. */
     private RobotState robotState = RobotState.TRAVEL;
@@ -66,6 +69,7 @@ public final class SubsystemManager {
         this.channeler = new Channeler();
         this.shooter = new Shooter();
         this.tejuino = new TejuinoBoard();
+        this.climber = new Climber();
     }
 
     /**
@@ -200,7 +204,9 @@ public final class SubsystemManager {
                         //intake.stopCommand(),
                         intake.stopCommand(),
                         channeler.stopCommand(),
-                        shooter.stopCommand()
+                        shooter.stopCommand(),
+                        climber.stowCommand()
+
                         
                     )
                 );
@@ -219,7 +225,9 @@ public final class SubsystemManager {
                     //intake.grabCommand(),
                     intake.testRollersCommand(),
                     channeler.stopCommand(),
-                    shooter.stopCommand()
+                    shooter.stopCommand(),
+                    climber.stowCommand()
+
                 );
                 break;
             case SHOOT:
@@ -235,7 +243,9 @@ public final class SubsystemManager {
                         }),
                     //intake.stowCommand(),
                     intake.stopCommand(),
-                    shooter.shootCommand().andThen(channeler.feedCommand())
+                    shooter.shootCommand().andThen(channeler.feedCommand()),
+                    climber.stowCommand()
+
                     //poseTracker.rotateTo(Rotation2d.fromDegrees(180)),
                 );
                 break;
@@ -253,7 +263,12 @@ public final class SubsystemManager {
                     //intake.stowCommand(),
                     channeler.stopCommand(),
                     intake.stopCommand(),
-                    shooter.stopCommand()
+                    shooter.stopCommand(),
+                    new SequentialCommandGroup(
+                        climber.riseCommand(),
+                        climber.extendCommand(),
+                        climber.pullCommand()
+                    )
                 );
                 break;
             case TEST:
