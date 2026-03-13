@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shooter.commands.SetVel;
@@ -15,8 +17,8 @@ public class Shooter extends SubsystemBase{
         this.controller = new ShooterController(io.getSpinMotor(), io.getSpinMotorSecondary());
     }
 
-    public Command shootCommand() {
-        return new SetVel(this, controller, io, ShooterConstants.SHOOT_VELOCITY);
+    public Command shootCommand(Supplier<Double> distance) {
+        return new SetVel(this, controller, io, distance);
     }
 
     public Command releaseCommand() {

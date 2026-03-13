@@ -67,7 +67,6 @@ public class PoseTracker {
     /** Indica si ya se inicializó la pose usando visión (Limelight). */
     private boolean initialPoseSetFromVision = false;
 
-    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 
     /**
      * Crea un {@link PoseTracker} asociado a un subsistema swerve.
@@ -160,21 +159,18 @@ public class PoseTracker {
         if (!LimelightHelpers.getTV(limelight))
             return Optional.empty();
 
-        LimelightHelpers.SetRobotOrientation(
-                limelight,
-                getPose().getRotation().getDegrees(),
-                swerve.getGyroRate(), swerve.getPitch(),
-                swerve.getPitchRate(), swerve.getRoll(),
-                swerve.getRollRate()
-        );
+            LimelightHelpers.SetRobotOrientation(
+                    limelight,
+                    swerve.getHeading(),
+                    swerve.getGyroRate(), swerve.getPitch(),
+                    swerve.getPitchRate(), swerve.getRoll(),
+                    swerve.getRollRate()
+            );
 
         PoseEstimate estimate;
 
-        if(alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-            estimate = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelight);
-        } else {
-            estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
-        }
+        estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
+        
 
         
         if (estimate == null || estimate.tagCount == 0)
@@ -198,8 +194,11 @@ public class PoseTracker {
         double dy = current.getY() - vision.getY();
 
         double error = Math.hypot(dx, dy);
+        if (initialPoseSetFromVision) {
+            return error < 2.0;
+        }
 
-        return error < 2.0;
+        return true;
     }
 
     private void applyDynamicVisionStdDevs(PoseEstimate estimate) {

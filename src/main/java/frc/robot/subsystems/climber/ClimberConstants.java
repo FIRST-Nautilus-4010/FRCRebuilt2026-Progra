@@ -19,9 +19,10 @@ public class ClimberConstants {
     // --------------------------------------------------------------------
 
     //TODO Asignar IDs correctos de los TalonFX del intake.
-    public static final int ELEVATOR_L_ID = 1;
-    public static final int ELEVATOR_R_ID = 2;
-    public static final int CLAW_MOTOR_ID = 4;
+    public static final int CLAW_MOTOR_ID = 10;
+    public static final int ELEVATOR_L_ID = 11;
+    public static final int ELEVATOR_R_ID = 12;
+
 
     // --------------------------------------------------------------------
     // LIMITES DE SOFTWARE

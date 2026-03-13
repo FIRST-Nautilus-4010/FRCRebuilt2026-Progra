@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -111,13 +112,25 @@ public final class SubsystemManager {
 
     private Pose2d calculateAimPose() {
         Pose2d pose = poseTracker.getPose();
-        
-        if (pose.getX() <= 4.625) {
-            aimPose = new Pose2d(4.625, 4.033, new Rotation2d(180));
-        } else if (pose.getY() >= 4.033) {
-            aimPose = new Pose2d(4.625, 6.0495, new Rotation2d(180));
-        } else{
-            aimPose = new Pose2d(4.625, 2.0165, new Rotation2d(0));
+
+        var alliance = DriverStation.getAlliance();
+
+        if (alliance.get() == DriverStation.Alliance.Blue) {
+            if (pose.getX() <= 4.625) {
+                aimPose = new Pose2d(4.625, 4.033, new Rotation2d(180));
+            } else if (pose.getY() >= 4.033) {
+                aimPose = new Pose2d(4.625, 6.0495, new Rotation2d(180));
+            } else{
+                aimPose = new Pose2d(4.625, 2.0165, new Rotation2d(0));
+            }
+        } else {
+            if (pose.getX() >= 16.54 - 4.625) {
+                aimPose = new Pose2d(16.54 - 4.625, 4.033, new Rotation2d(180));
+            } else if (pose.getY() >= 4.033) {
+                aimPose = new Pose2d(16.54 - 4.625, 6.0495, new Rotation2d(180));
+            } else{
+                aimPose = new Pose2d(16.54 - 4.625, 2.0165, new Rotation2d(0));
+            }
         }
 
         return aimPose;
@@ -204,8 +217,8 @@ public final class SubsystemManager {
                         //intake.stopCommand(),
                         intake.stopCommand(),
                         channeler.stopCommand(),
-                        shooter.stopCommand(),
-                        climber.stowCommand()
+                        shooter.stopCommand()//,
+                        //climber.stowCommand()
 
                         
                     )
@@ -222,11 +235,11 @@ public final class SubsystemManager {
                             tejuino.all_leds_yellow(1);
                             tejuino.all_leds_yellow(2);
                         }),
-                    //intake.grabCommand(),
-                    intake.testRollersCommand(),
+                    intake.grabCommand(),
+                    //intake.testRollersCommand(),
                     channeler.stopCommand(),
-                    shooter.stopCommand(),
-                    climber.stowCommand()
+                    shooter.stopCommand()//,
+                    //climber.stowCommand()
 
                 );
                 break;
@@ -235,16 +248,18 @@ public final class SubsystemManager {
                     new InstantCommand(() -> {
                             assistX = false;
                             assistY = false;
-                            assistTheta = true;
-                            aimEnabled = true;
+                            assistTheta = true;//true
+                            aimEnabled = true;//true
                             ChassisConstants.MAX_VELOCITY = 3.77952;
                             tejuino.all_leds_red(1);
                             tejuino.all_leds_red(2);
                         }),
-                    //intake.stowCommand(),
                     intake.stopCommand(),
-                    shooter.shootCommand().andThen(channeler.feedCommand()),
-                    climber.stowCommand()
+                    //intake.stopCommand(),
+                    shooter.shootCommand(
+                        () -> calculateAimPose().getTranslation().getDistance(poseTracker.getPose().getTranslation())
+                    ).andThen(channeler.feedCommand())//,
+                    //climber.stowCommand()
 
                     //poseTracker.rotateTo(Rotation2d.fromDegrees(180)),
                 );
@@ -260,31 +275,20 @@ public final class SubsystemManager {
                             tejuino.all_leds_green(1);
                             tejuino.all_leds_green(2);
                         }),
-                    //intake.stowCommand(),
+                    intake.stowCommand(),
                     channeler.stopCommand(),
-                    intake.stopCommand(),
-                    shooter.stopCommand(),
+                    //intake.stopCommand(),
+                    shooter.stopCommand()/* ,
                     new SequentialCommandGroup(
                         climber.riseCommand(),
                         climber.extendCommand(),
                         climber.pullCommand()
-                    )
+                    )*/
                 );
                 break;
             case TEST:
                 CommandScheduler.getInstance().schedule(
-                    new InstantCommand(() -> {
-                            assistX = false;
-                            assistY = false;
-                            assistTheta = false;
-                            aimEnabled = false;
-                            ChassisConstants.MAX_VELOCITY = 3.77952;
-                            tejuino.all_leds_white(1);
-                            tejuino.all_leds_white(2);
-                        }), 
-                    //intake.grabCommand(),
-                    channeler.feedCommand(),
-                    shooter.shootCommand()
+                     intake.stowCommand()
                 );
                 break;
             default:

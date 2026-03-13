@@ -31,7 +31,7 @@ public class AutoIdeal extends SequentialCommandGroup {
         Pose2d bumpPoseIn = new Pose2d(3.477, 2.355 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
 
         Pose2d trenchPoseOut = new Pose2d(5.765, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
-        Pose2d trenchPoseIn = new Pose2d(3.426, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
+        Pose2d trenchPoseIn = new Pose2d(3, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
 
         Pose2d humanPose = new Pose2d(0.694, 0.675, Rotation2d.fromRadians(30 * rotationMultiplier));
 
@@ -42,8 +42,8 @@ public class AutoIdeal extends SequentialCommandGroup {
             // Disparar los 8 fuel iniciales
             new DriveTo(manager, new Pose2d(3.230, initialPose.getY(), initialPose.getRotation())),
             new InstantCommand(() -> manager.executeState(RobotState.SHOOT)),
-            new WaitCommand(2.0),
-
+            new WaitCommand(2.0));
+/* 
             // Regresar al estado travel
             new InstantCommand(() -> manager.executeState(RobotState.TRAVEL)),
 
@@ -97,6 +97,6 @@ public class AutoIdeal extends SequentialCommandGroup {
 
             // Regresar al estado travel
             new InstantCommand(() -> manager.executeState(RobotState.TRAVEL))
-        );
+        );*/
     }
 }

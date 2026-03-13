@@ -63,7 +63,5 @@ public class ShooterConstants {
 
     // TODO Ajustar valores de velocidad del shooter.
 
-    public static final double SHOOT_VELOCITY = 100.0; // rotaciones por segundo
-
     public static final double RELEASE_VELOCITY = -10.0; // rotaciones por segundo
 }
