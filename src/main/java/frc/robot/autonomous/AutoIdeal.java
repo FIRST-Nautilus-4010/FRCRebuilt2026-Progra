@@ -27,23 +27,23 @@ public class AutoIdeal extends SequentialCommandGroup {
         // Si estamos arriba, multiplicamos por -1 para invertir el ángulo
         double rotationMultiplier = isUpperSide ? -1 : 1;
 
-        Pose2d bumpPoseOut = new Pose2d(5.869, 2.355 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
-        Pose2d bumpPoseIn = new Pose2d(3.477, 2.355 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
+        Pose2d bumpPoseOut = new Pose2d(16.54 - 5.869, 2.355 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier + 180));
+        Pose2d bumpPoseIn = new Pose2d(16.54 - 3.477, 2.355 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier + 180));
 
-        Pose2d trenchPoseOut = new Pose2d(5.765, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
-        Pose2d trenchPoseIn = new Pose2d(3, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
+        Pose2d trenchPoseOut = new Pose2d(16.54 - 5.765, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier + 180));
+        Pose2d trenchPoseIn = new Pose2d(16.54 - 3.426, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier + 180));
 
-        Pose2d humanPose = new Pose2d(0.694, 0.675, Rotation2d.fromRadians(30 * rotationMultiplier));
+        Pose2d humanPose = new Pose2d(16.54 - 0.694, 0.675, Rotation2d.fromRadians(30 * rotationMultiplier + 180));
 
-        Pose2d prepareForIntakePos = new Pose2d(6.909, 1.262 + sideOffset, Rotation2d.fromDegrees(2.417 * rotationMultiplier));
-        Pose2d intakePos = new Pose2d(8.043, 2.417 + sideOffset, Rotation2d.fromDegrees(2.417 * rotationMultiplier));
+        Pose2d prepareForIntakePos = new Pose2d(16.54 - 6.909, 1.262 + sideOffset, Rotation2d.fromDegrees(2.417 * rotationMultiplier + 180));
+        Pose2d intakePos = new Pose2d(16.54 - 8.043, 2.417 + sideOffset, Rotation2d.fromDegrees(2.417 * rotationMultiplier + 180));
         
         addCommands(
             // Disparar los 8 fuel iniciales
             new DriveTo(manager, new Pose2d(3.230, initialPose.getY(), initialPose.getRotation())),
             new InstantCommand(() -> manager.executeState(RobotState.SHOOT)),
-            new WaitCommand(2.0));
-/* 
+            new WaitCommand(2.0),
+
             // Regresar al estado travel
             new InstantCommand(() -> manager.executeState(RobotState.TRAVEL)),
 
@@ -97,6 +97,6 @@ public class AutoIdeal extends SequentialCommandGroup {
 
             // Regresar al estado travel
             new InstantCommand(() -> manager.executeState(RobotState.TRAVEL))
-        );*/
+        );
     }
 }

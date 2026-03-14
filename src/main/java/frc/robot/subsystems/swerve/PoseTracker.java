@@ -86,7 +86,7 @@ public class PoseTracker {
 
         this.poseEstimator = new SwerveDrivePoseEstimator(
                 ChassisConstants.KINEMATICS,
-                new Rotation2d(0.0),
+                new Rotation2d(0),
                 swerve.getSwerveModulePos(),
                 AutonomousConstants.initialPose
         );
@@ -95,6 +95,10 @@ public class PoseTracker {
     // --------------------------------------------------------------------
     // API PRINCIPAL
     // --------------------------------------------------------------------
+
+    public Swerve getSwerve() {
+        return swerve;
+    }
 
     public void configureDefaultCommands(
         Supplier<Double> xInput,
@@ -234,7 +238,7 @@ public class PoseTracker {
 
         applyDynamicVisionStdDevs(estimate);
 
-        Pose2d pose = estimate.pose;
+        Pose2d pose = new Pose2d(estimate.pose.getTranslation(), swerve.getRotation2d());
         double timestamp = estimate.timestampSeconds;
 
         if (!initialPoseSetFromVision) {

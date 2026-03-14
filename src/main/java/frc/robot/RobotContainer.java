@@ -53,8 +53,8 @@ public class RobotContainer {
   private void configureBindings() {
     // Configurar controles para el estado TRAVEL
     subsystemManager.configureTravelControls(
-        () -> -driverJoystick.getLeftY(),
-        () -> -driverJoystick.getLeftX(),
+        () -> driverJoystick.getLeftY(),
+        () -> driverJoystick.getLeftX(),
         () -> -driverJoystick.getRightX(),
         () -> driverJoystick.getAButton()
     );
@@ -102,4 +102,5 @@ public class RobotContainer {
   public void disable() {
     subsystemManager.disable();
   }
+
 }

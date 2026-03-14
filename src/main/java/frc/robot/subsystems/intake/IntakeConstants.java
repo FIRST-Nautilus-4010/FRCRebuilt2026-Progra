@@ -145,7 +145,7 @@ public class IntakeConstants {
     // TODO Ajustar valores de ángulo y velocidad del intake.
 
     public static final double GRAB_ANGLE_RAD = -2.850;
-    public static final double GRAB_SPIN_RPS = -50.0;
+    public static final double GRAB_SPIN_RPS = -70.0;
     public static final double GRAB_SPIN_RPS_SECONDARY = -30.0;
 
     public static final double RELEASE_ANGLE_RAD = -2.850;

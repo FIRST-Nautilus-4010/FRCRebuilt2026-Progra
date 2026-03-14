@@ -271,7 +271,7 @@ public final class SubsystemManager {
                             assistY = false;
                             assistTheta = false;
                             aimEnabled = false;
-                            ChassisConstants.MAX_VELOCITY = 3.77952;
+                            ChassisConstants.MAX_VELOCITY = 6;//3.77952
                             tejuino.all_leds_green(1);
                             tejuino.all_leds_green(2);
                         }),

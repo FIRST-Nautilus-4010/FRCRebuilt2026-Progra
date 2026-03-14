@@ -200,7 +200,7 @@ public class Swerve extends SubsystemBase {
     /** Resetea el heading del sensor de orientación actual. */
     public void zeroHeading() {
         if (usePigeon) {
-            pigeon.setYaw(180);
+            pigeon.setYaw(0);
         } else {
             gyro.reset();
         }
@@ -209,7 +209,7 @@ public class Swerve extends SubsystemBase {
     /** Heading actual del robot en grados. */
     public double getHeading() {
         if (usePigeon) {
-            return pigeon.getYaw().getValueAsDouble() + 180;
+            return pigeon.getYaw().getValueAsDouble();
         } else {
             // NavX usa convención opuesta, por eso el signo negativo.
             return -gyro.getAngle();
