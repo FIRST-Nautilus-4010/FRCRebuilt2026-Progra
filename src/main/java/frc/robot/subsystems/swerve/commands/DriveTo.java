@@ -12,8 +12,6 @@ public class DriveTo extends Command {
     public DriveTo(SubsystemManager manager, Pose2d target) {
         this.manager = manager;
         this.target = target;
-
-        addRequirements(manager.getPoseTracker().getSwerve());
     }
 
     @Override

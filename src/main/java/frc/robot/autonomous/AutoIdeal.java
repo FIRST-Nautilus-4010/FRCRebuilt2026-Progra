@@ -27,25 +27,26 @@ public class AutoIdeal extends SequentialCommandGroup {
         // Si estamos arriba, multiplicamos por -1 para invertir el ángulo
         double rotationMultiplier = isUpperSide ? -1 : 1;
 
-        Pose2d bumpPoseOut = new Pose2d(16.54 - 5.869, 2.355 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier + 180));
-        Pose2d bumpPoseIn = new Pose2d(16.54 - 3.477, 2.355 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier + 180));
+        Pose2d bumpPoseOut = new Pose2d(5.869, 2.355 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
+        Pose2d bumpPoseIn = new Pose2d(3.477, 2.355 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
 
-        Pose2d trenchPoseOut = new Pose2d(16.54 - 5.765, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier + 180));
-        Pose2d trenchPoseIn = new Pose2d(16.54 - 3.426, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier + 180));
+        Pose2d trenchPoseOut = new Pose2d(5.765, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
+        Pose2d trenchPoseIn = new Pose2d(3.426, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
 
-        Pose2d humanPose = new Pose2d(16.54 - 0.694, 0.675, Rotation2d.fromRadians(30 * rotationMultiplier + 180));
+        Pose2d humanPose = new Pose2d(0.694, 0.675, Rotation2d.fromRadians(30 * rotationMultiplier));
 
-        Pose2d prepareForIntakePos = new Pose2d(16.54 - 6.909, 1.262 + sideOffset, Rotation2d.fromDegrees(2.417 * rotationMultiplier + 180));
-        Pose2d intakePos = new Pose2d(16.54 - 8.043, 2.417 + sideOffset, Rotation2d.fromDegrees(2.417 * rotationMultiplier + 180));
+        Pose2d prepareForIntakePos = new Pose2d(16.54 - 6.909, 1.262 + sideOffset, Rotation2d.fromDegrees(2.417 * rotationMultiplier));
+        Pose2d intakePos = new Pose2d(8.043, 2.417 + sideOffset, Rotation2d.fromDegrees(-90 * rotationMultiplier));
         
         addCommands(
             // Disparar los 8 fuel iniciales
+            new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
             new DriveTo(manager, new Pose2d(3.230, initialPose.getY(), initialPose.getRotation())),
-            new InstantCommand(() -> manager.executeState(RobotState.SHOOT)),
+            new InstantCommand(() -> manager.scheduleState(RobotState.SHOOT)),
             new WaitCommand(2.0),
 
             // Regresar al estado travel
-            new InstantCommand(() -> manager.executeState(RobotState.TRAVEL)),
+            new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
 
             // Salir del la aliance zone
             (initialPose.getY() > 4.033 && initialPose.getY() < 6.77) 
@@ -56,22 +57,21 @@ public class AutoIdeal extends SequentialCommandGroup {
             
 
             // Recoger los fuel de la neutral zone
-            new InstantCommand(() -> manager.executeState(RobotState.INTAKE)),
+            new InstantCommand(() -> manager.scheduleState(RobotState.INTAKE)),
             new DriveTo(manager, prepareForIntakePos),
             new DriveTo(manager, intakePos),
 
             // Regresar al estado travel
-            new InstantCommand(() -> manager.executeState(RobotState.TRAVEL)),
+            new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
 
-            // Ir a la zona de human para disparar los fuel recogidos y los que ingrese el human
+            // Ir a la zona de human para disparar los fuel recogidos
             new DriveTo(manager, trenchPoseOut),
             new DriveTo(manager, trenchPoseIn),
-            new DriveTo(manager, humanPose),
-            new InstantCommand(() -> manager.executeState(RobotState.SHOOT)),
+            new InstantCommand(() -> manager.scheduleState(RobotState.SHOOT)),
             new WaitCommand(5.0),
 
             // Regresar al estado travel
-            new InstantCommand(() -> manager.executeState(RobotState.TRAVEL)),
+            new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
 
             //--------------- Repetir el proceso ---------------
 
@@ -81,22 +81,22 @@ public class AutoIdeal extends SequentialCommandGroup {
             
 
             // Recoger los fuel de la neutral zone
-            new InstantCommand(() -> manager.executeState(RobotState.INTAKE)),
+            new InstantCommand(() -> manager.scheduleState(RobotState.INTAKE)),
             new DriveTo(manager, prepareForIntakePos),
             new DriveTo(manager, intakePos),
 
             // Regresar al estado travel
-            new InstantCommand(() -> manager.executeState(RobotState.TRAVEL)),
+            new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
 
             // Ir a la zona de human para disparar los fuel recogidos y los que ingrese el human
             new DriveTo(manager, trenchPoseOut),
             new DriveTo(manager, trenchPoseIn),
             new DriveTo(manager, humanPose),
-            new InstantCommand(() -> manager.executeState(RobotState.SHOOT)),
+            new InstantCommand(() -> manager.scheduleState(RobotState.SHOOT)),
             new WaitCommand(5.0),
 
             // Regresar al estado travel
-            new InstantCommand(() -> manager.executeState(RobotState.TRAVEL))
+            new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL))
         );
     }
 }

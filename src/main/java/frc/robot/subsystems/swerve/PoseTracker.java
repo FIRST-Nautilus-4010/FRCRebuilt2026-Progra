@@ -198,9 +198,10 @@ public class PoseTracker {
         double dy = current.getY() - vision.getY();
 
         double error = Math.hypot(dx, dy);
+        /* 
         if (initialPoseSetFromVision) {
             return error < 2.0;
-        }
+        }*/
 
         return true;
     }
