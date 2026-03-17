@@ -214,4 +214,16 @@ public class IntakeController {
             pivotMotor.stopMotor();
         }
     }
+
+    public void setMaxVelocity(double maxVel) {
+        var pivotMM = pivotConfig.MotionMagic;
+        pivotMM.MotionMagicCruiseVelocity = maxVel;
+        pivotMotor.getConfigurator().apply(pivotConfig);
+    }
+
+    public void resetMaxVelocity() {
+        var pivotMM = pivotConfig.MotionMagic;
+        pivotMM.MotionMagicCruiseVelocity = IntakeConstants.MAGIC_MOTION_VELOCITY_STR;
+        pivotMotor.getConfigurator().apply(pivotConfig);
+    }
 }

@@ -1,12 +1,10 @@
 package frc.robot.subsystems.channeler;
 
-// TODO Comentarios de las constantes.
-
 /**
- * Conjunto de constantes específicas del sistema channeler.
+ * Constantes de configuración del subsistema Channeler.
  *
- * Solo se incluyen las que realmente se usan en las clases actuales
- * (módulos, controlador, IO, etc.).
+ * Define IDs de dispositivos CAN, parámetros de Motion Magic, ganancias PID
+ * y velocidades predefinidas para el control del motor de conducción de fuel.
  */
 public class ChannelerConstants {
     
@@ -14,18 +12,18 @@ public class ChannelerConstants {
         // Clase de solo constantes: no instanciable.
     }
 
-    // --------------------------------------------------------------------
-    // IDs DE DISPOSITIVOS (CTR)
-    // --------------------------------------------------------------------
+    // ====================================================================
+    // IDS DE DISPOSITIVOS CAN
+    // ====================================================================
 
+    /** ID del motor TalonFX principal del spinner. */
     public static final int SPIN_TALONFX_ID = 6;
+    /** ID del motor TalonFX secundario del spinner. */
     public static final int SPIN_SECONDARY_TALONFX_ID = 7;
 
-    // --------------------------------------------------------------------
-    // MOTION MAGIC - SPIN (VELOCIDAD) 
-    // --------------------------------------------------------------------
-
-    // TODO Ajustar valores de Motion Magic para el spin.
+    // ====================================================================
+    // MOTION MAGIC - CONTROL DE VELOCIDAD (SPIN)
+    // ====================================================================
     
     /** Aceleración de Motion Magic para el spin (rot/s²). */
     public static final double MAGIC_MOTION_VELOCITY_ACCELERATION_STR = 950;
@@ -33,35 +31,32 @@ public class ChannelerConstants {
     /** Jerk de Motion Magic para el spin (rot/s³). */
     public static final double MAGIC_MOTION_VELOCITY_JERK_STR = 9500;
 
-    // -------------------------------------------------------------------
-    // GANANCIAS DE CONTROL - VELOCIDAD (SPIN)
-    // --------------------------------------------------------------------
+    // ====================================================================
+    // GANANCIAS PID - CONTROL DE VELOCIDAD (SPIN)
+    // ====================================================================
 
-    /** kS: salida para vencer fricción estática en el spin. */
+    /** kS: Salida estática para vencer fricción (output). */
     public static final double VEL_KS = 0.10442;
 
-    /** kV: salida por unidad de velocidad objetivo (output / rps). */
+    /** kV: Ganancia de velocidad (output / rps). */
     public static final double VEL_KV = 0.10882;
 
-    /** kA: salida por unidad de aceleración objetivo (output / (rps/s)). */
+    /** kA: Ganancia de aceleración (output / (rps/s)). */
     public static final double VEL_KA = 0.001647;
 
-    /** kP: salida por unidad de error de velocidad (output / rps). */
+    /** kP: Ganancia proporcional de velocidad (output / rps de error). */
     public static final double VEL_KP = 0.4;
 
-    /** kI: salida por unidad de error integrado de velocidad. */
+    /** kI: Ganancia integral de velocidad (output / rps integrado). */
     public static final double VEL_KI = 0.00;
 
-    /** kD: salida por unidad de derivada del error de velocidad. */
+    /** kD: Ganancia derivativa de velocidad (output / (rps/s) de error). */
     public static final double VEL_KD = 0.001;
 
-    // --------------------------------------------------------------------
-    // POSICIONES Y VELOCIDADES PREDEFINIDAS
-    // --------------------------------------------------------------------
+    // ====================================================================
+    // VELOCIDADES PREDEFINIDAS
+    // ====================================================================
 
-    // TODO Ajustar valores de velocidad del channeler.
-
-    public static final double FEED_VELOCITY = -50.0; // rotaciones por segundo
-
-    public static final double RELEASE_VELOCITY = 10.0; // rotaciones por segundo
+    /** Velocidad de liberación/rechazo de fuel (rotaciones/segundo). */
+    public static final double RELEASE_VELOCITY = 30.0;
 }

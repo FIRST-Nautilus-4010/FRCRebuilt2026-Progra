@@ -33,17 +33,17 @@ public class AutoIdeal extends SequentialCommandGroup {
         Pose2d trenchPoseOut = new Pose2d(5.765, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
         Pose2d trenchPoseIn = new Pose2d(3.426, 0.613 + sideOffset, Rotation2d.fromDegrees(0 * rotationMultiplier));
 
-        Pose2d humanPose = new Pose2d(0.694, 0.675, Rotation2d.fromRadians(30 * rotationMultiplier));
+        Pose2d humanPose = new Pose2d(0.694, 0.675 + sideOffset, Rotation2d.fromDegrees(180 * rotationMultiplier));
 
-        Pose2d prepareForIntakePos = new Pose2d(16.54 - 6.909, 1.262 + sideOffset, Rotation2d.fromDegrees(2.417 * rotationMultiplier));
-        Pose2d intakePos = new Pose2d(8.043, 2.417 + sideOffset, Rotation2d.fromDegrees(-90 * rotationMultiplier));
+        Pose2d prepareForIntakePos = new Pose2d(6.909, 1.262 + sideOffset, Rotation2d.fromDegrees(90 * rotationMultiplier));
+        Pose2d intakePos = new Pose2d(8.043, 2.417 + sideOffset, Rotation2d.fromDegrees(90 * rotationMultiplier));
         
         addCommands(
             // Disparar los 8 fuel iniciales
             new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
             new DriveTo(manager, new Pose2d(3.230, initialPose.getY(), initialPose.getRotation())),
             new InstantCommand(() -> manager.scheduleState(RobotState.SHOOT)),
-            new WaitCommand(2.0),
+            new WaitCommand(1.0),
 
             // Regresar al estado travel
             new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
@@ -68,7 +68,7 @@ public class AutoIdeal extends SequentialCommandGroup {
             new DriveTo(manager, trenchPoseOut),
             new DriveTo(manager, trenchPoseIn),
             new InstantCommand(() -> manager.scheduleState(RobotState.SHOOT)),
-            new WaitCommand(5.0),
+            new WaitCommand(3.0),
 
             // Regresar al estado travel
             new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
@@ -93,7 +93,7 @@ public class AutoIdeal extends SequentialCommandGroup {
             new DriveTo(manager, trenchPoseIn),
             new DriveTo(manager, humanPose),
             new InstantCommand(() -> manager.scheduleState(RobotState.SHOOT)),
-            new WaitCommand(5.0),
+            new WaitCommand(3.0),
 
             // Regresar al estado travel
             new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL))

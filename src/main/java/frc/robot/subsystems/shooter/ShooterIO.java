@@ -4,51 +4,62 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
-// TODO comentarios de la clase.
-
 /**
- * Gestiona el hardware del shooter:
- * <ul>
- *   <li>Motor de giro (spin)</li>
- *   <li>Motor secundario (secondary)</li>
- * </ul>
+ * Interfaz de hardware del subsistema Shooter.
  *
- * Esta clase se encarga de:
- * <ul>
- *   <li>Inicializar los dispositivos CAN</li>
- *   <li>Proveer métodos de acceso a posición y velocidad del motor de giro y motor secundario</li>
- * </ul>
+ * Gestiona los motores TalonFX del shooter (principal y secundario sincronizados),
+ * incluyendo su inicialización, sincronización y lectura de telemetría.
  */
 public class ShooterIO {
-    private final TalonFX spinMotor;
-    private final TalonFX spinMotorSecondary;
-    /**
-     * Crea un nuevo ShooterIO.
-     *
-     * @param spinTalonFxId   ID CAN del TalonFX de giro
-     * @param spinMotorSecondaryTalonFxId  ID CAN del TalonFX del motor secundario
-     */
     
+    /** Motor TalonFX principal del shooter. */
+    private final TalonFX spinMotor;
+    /** Motor TalonFX secundario (seguidor del principal con alineación opuesta). */
+    private final TalonFX spinMotorSecondary;
+    
+    /**
+     * Crea la interfaz de hardware del Shooter.
+     *
+     * Inicializa los motores TalonFX y configura el motor secundario como
+     * seguidor del motor principal con alineación opuesta.
+     */
     public ShooterIO() {
         this.spinMotor = new TalonFX(ShooterConstants.SPIN_TALONFX_ID);
         this.spinMotorSecondary = new TalonFX(ShooterConstants.SPIN_SECONDARY_TALONFX_ID);
 
-        // Establece el motor secundario para que siga al principal.
         this.spinMotorSecondary.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
+    /**
+     * Obtiene la velocidad actual del motor de lanzamiento.
+     *
+     * @return Velocidad en rotaciones por segundo (RPS)
+     */
     public double getSpinVelocityRPS() {
         return spinMotor.getVelocity().getValueAsDouble();
     }
     
+    /**
+     * Detiene el motor de lanzamiento.
+     */
     public void stopMotors() {
         spinMotor.stopMotor();
     }
 
+    /**
+     * Obtiene una referencia al motor de lanzamiento principal.
+     *
+     * @return Motor TalonFX principal del shooter
+     */
     public TalonFX getSpinMotor() {
         return spinMotor;
     }
 
+    /**
+     * Obtiene una referencia al motor de lanzamiento secundario.
+     *
+     * @return Motor TalonFX secundario del shooter
+     */
     public TalonFX getSpinMotorSecondary() {
         return spinMotorSecondary;
     }

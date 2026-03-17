@@ -4,45 +4,52 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
-// TODO comentarios de la clase.
-
 /**
- * Gestiona el hardware del channeler:
- * <ul>
- *   <li>Motor de giro (spin)</li>
- *   <li>Motor secundario (secondary)</li>
- * </ul>
+ * Interfaz de hardware del subsistema Channeler.
  *
- * Esta clase se encarga de:
- * <ul>
- *   <li>Inicializar los dispositivos CAN</li>
- *   <li>Proveer métodos de acceso a posición y velocidad del motor de giro y motor secundario</li>
- * </ul>
+ * Gestiona los motores TalonFX del spinner (principal y secundario), incluyendo
+ * su inicialización, sincronización y lectura de telemetría.
  */
 public class ChannelerIO {
+    
+    /** Motor TalonFX principal del spinner. */
     private final TalonFX spinMotor;
+    /** Motor TalonFX secundario (seguidor del principal). */
     private final TalonFX secondaryMotor;
 
     /**
-     * Crea un nuevo ChannelerIO.
+     * Crea la interfaz de hardware del Channeler.
      *
-     * @param spinTalonFxId   ID CAN del TalonFX de giro
+     * Inicializa los motores TalonFX y configura el motor secundario como
+     * seguidor del motor principal con alineación.
      */
-    
     public ChannelerIO() {
         this.spinMotor = new TalonFX(ChannelerConstants.SPIN_TALONFX_ID);
         this.secondaryMotor = new TalonFX(ChannelerConstants.SPIN_SECONDARY_TALONFX_ID);
         secondaryMotor.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
+    /**
+     * Obtiene la velocidad actual del motor de giro.
+     *
+     * @return Velocidad en rotaciones por segundo (RPS)
+     */
     public double getSpinVelocityRPS() {
         return spinMotor.getVelocity().getValueAsDouble();
     }
     
+    /**
+     * Detiene ambos motores.
+     */
     public void stopMotors() {
         spinMotor.stopMotor();
     }
 
+    /**
+     * Obtiene una referencia al motor de giro principal.
+     *
+     * @return Motor TalonFX del spinner
+     */
     public TalonFX getSpinMotor() {
         return spinMotor;
     }

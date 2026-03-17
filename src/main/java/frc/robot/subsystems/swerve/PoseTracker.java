@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -20,86 +19,117 @@ import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightHelpers.PoseEstimate;
 
 /**
- * Encapsula toda la lógica de estimación de pose del robot.
+ * Estimador centralizado de pose del robot.
  *
- * Fuentes de información:
+ * Fusiona múltiples fuentes de información para estimar la posición y orientación
+ * del robot con precisión:
  * <ul>
- *   <li>Odometry de los módulos swerve + gyro</li>
- *   <li>Medidas de visión (Limelight / AprilTags)</li>
- *   <li>Detección de colisión y skid para ajustar la confianza</li>
+ *   <li>Odometría de módulos swerve + giroscopio (base continua)</li>
+ *   <li>Visión con AprilTags (Limelight) para correcciones periódicas</li>
+ *   <li>Detección de colisiones y skid para ajustar confianza</li>
  * </ul>
  *
- * También expone comandos de alto nivel como {@link #driveTo(Pose2d)}.
+ * Proporciona API de alto nivel para comandos de movimiento autónomo y
+ * conducción asistida.
  */
 public class PoseTracker {
 
-    // --- Constantes internas ---
+    // ====================================================================
+    // CONSTANTES INTERNAS
+    // ====================================================================
 
-    /** Nombre de la cámara Limelight usada para odometría. */
+    /** Identificador de la cámara Limelight principal (odometría). */
     private static final String LIMELIGHT_2 = "limelight-comosea";
+    /** Identificador de la cámara Limelight secundaria. */
     private static final String LIMELIGHT_3 = "limelight-three";
 
-    // --- Estimador de pose y publicación ---
+    // ====================================================================
+    // ESTIMADOR DE POSE Y PUBLICACIÓN
+    // ====================================================================
 
-    /** Estimador de pose basado en modelo swerve + mediciones de visión. */
+    /** Estimador de pose usando cinemática swerve + mediciones de visión. */
     private final SwerveDrivePoseEstimator poseEstimator;
 
-    /** Publicador de pose al NetworkTables para dashboards externos. */
+    /** Publisher de pose a NetworkTables para dashboards externos. */
     private final StructPublisher<Pose2d> posePublisher =
             NetworkTableInstance.getDefault()
                     .getStructTopic("Robot position", Pose2d.struct)
                     .publish();
 
-    // --- Dependencias del subsistema ---
+    // ====================================================================
+    // DEPENDENCIAS DEL SUBSISTEMA
+    // ====================================================================
 
-    /** Referencia al subsistema de swerve, del que se obtienen módulos y gyro. */
+    /** Subsistema swerve (módulos y sensores de orientación). */
     private final Swerve swerve;
     
+    // ====================================================================
+    // UTILIDADES AUXILIARES
+    // ====================================================================
 
-    // --- Utilidades auxiliares ---
-
-    /** Rastrea confianza en la odometría (detección de skid, etc.). */
+    /** Rastrea confianza en odometría (detección de skid, movimiento anómalo). */
     private final PoseConfidenceTracker confidenceTracker = new PoseConfidenceTracker();
 
-    /** Detecta impactos/colisiones que puedan invalidar la odometría. */
+    /** Detecta impactos/colisiones que invalidan mediciones de odometría. */
     private final CollisionDetector collisionDetector = new CollisionDetector();
 
-    /** Indica si ya se inicializó la pose usando visión (Limelight). */
+    /** Flag para indicar si la pose inicial fue establecida usando visión. */
     private boolean initialPoseSetFromVision = false;
 
-
+    /** Flag para habilitar/deshabilitar fusión de mediciones de visión. */
+    private boolean visionOn = true;
     /**
-     * Crea un {@link PoseTracker} asociado a un subsistema swerve.
+     * Crea el estimador de pose del robot.
      *
-     * Inicializa el {@link SwerveDrivePoseEstimator} usando:
+     * Inicializa el {@link SwerveDrivePoseEstimator} con:
      * <ul>
-     *   <li>Cinemática del chasis</li>
-     *   <li>Rotación inicial (0 rad)</li>
-     *   <li>Posiciones iniciales de módulos</li>
-     *   <li>Pose inicial definida en {@link AutonomousConstants#initialPose}</li>
+     *   <li>Cinemática del chasis desde {@link ChassisConstants}</li>
+     *   <li>Orientación inicial del swerve</li>
+     *   <li>Posiciones iniciales de los módulos</li>
+     *   <li>Pose inicial desde {@link AutonomousConstants#initialPose}</li>
      * </ul>
-     *
-     * @param swerve subsistema swerve del robot.
      */
     public PoseTracker() {
         this.swerve = new Swerve(true);
 
         this.poseEstimator = new SwerveDrivePoseEstimator(
                 ChassisConstants.KINEMATICS,
-                new Rotation2d(0),
+                swerve.getRotation2d(),
                 swerve.getSwerveModulePos(),
                 AutonomousConstants.initialPose
         );
     }
 
-    // --------------------------------------------------------------------
+    // ====================================================================
     // API PRINCIPAL
-    // --------------------------------------------------------------------
+    // ====================================================================
 
+    /**
+     * Retorna el subsistema swerve asociado.
+     *
+     * @return Subsistema swerve
+     */
     public Swerve getSwerve() {
         return swerve;
     }
 
+    /**
+     * Configura el comando por defecto del swerve.
+     * 
+     * Conecta los inputs del operador con el comando {@link Drive} que maneja
+     * la conducción asistida, aiming y otros controles de alto nivel.
+     *
+     * @param xInput proveedor de velocidad X
+     * @param yInput proveedor de velocidad Y
+     * @param omegaInput proveedor de velocidad angular
+     * @param resetYaw proveedor para resetear giroscopio
+     * @param assistX proveedor de flag para asistencia en X
+     * @param assistY proveedor de flag para asistencia en Y
+     * @param assistTheta proveedor de flag para asistencia angular
+     * @param aimEnabled proveedor de flag para aiming automático
+     * @param targetPose proveedor de pose objetivo para navegación
+     * @param aimPose proveedor de pose calculada para aiming
+     */
     public void configureDefaultCommands(
         Supplier<Double> xInput,
         Supplier<Double> yInput,
@@ -136,7 +166,11 @@ public class PoseTracker {
         );
     }
 
-    /** Devuelve la pose estimada actual del robot. */
+    /**
+     * Obtiene la pose estimada actual del robot.
+     *
+     * @return Pose2d con posición y orientación estimadas
+     */
     public Pose2d getPose() {
         return poseEstimator.getEstimatedPosition();
     }
@@ -144,7 +178,7 @@ public class PoseTracker {
     /**
      * Resetea la odometría a una pose dada.
      *
-     * @param pose nueva pose de referencia.
+     * @param pose nueva pose de referencia
      */
     public void resetOdometry(Pose2d pose) {
         poseEstimator.resetPosition(
@@ -154,10 +188,68 @@ public class PoseTracker {
         );
     }
 
-    // --------------------------------------------------------------------
-    // VISIÓN (LIMELIGHT)
-    // --------------------------------------------------------------------
+    // ====================================================================
+    // VISIÓN (LIMELIGHT / APRILTAGS)
+    // ====================================================================
 
+    /**
+     * Fuerza un reset de odometría usando una medición de visión.
+     * 
+     * Obtiene la pose de una cámara Limelight y la usa como nueva referencia.
+     * Reporta advertencia si no hay medición disponible.
+     *
+     * @param limelight identificador de la cámara Limelight
+     */
+    public void forceVisionReset(String limelight) {
+
+        Optional<PoseEstimate> vision = getVisionEstimate(limelight);
+
+        if (vision.isEmpty()) {
+            DriverStation.reportWarning(
+                    "No se pudo obtener una estimación de pose de " + limelight + " para resetear odometría.",
+                    false
+            );
+            return;
+        }
+
+        PoseEstimate estimate = vision.get();
+
+        Pose2d pose = new Pose2d(estimate.pose.getTranslation(), swerve.getRotation2d());
+
+        resetOdometry(pose);
+        initialPoseSetFromVision = true;
+
+        SmartDashboard.putString(
+                "Force Reset Pose Source",
+                limelight
+        );
+    }
+
+    /**
+     * Deshabilita la fusión de mediciones de visión.
+     * 
+     * La odometría continuará basándose solo en módulos y giroscopio.
+     */
+    public void turnOffVision() {
+        visionOn = false;
+    }
+
+    /**
+     * Habilita la fusión de mediciones de visión.
+     */
+    public void turnOnVision() {
+        visionOn = true;
+    }
+
+    /**
+     * Obtiene una estimación de pose de una cámara Limelight.
+     * 
+     * Valida que haya tags detectados y que los datos sean válidos antes
+     * de retornar la estimación.
+     *
+     * @param limelight identificador de la cámara
+     * @return Optional con la estimación si es válida, vacío si no
+     */
     private Optional<PoseEstimate> getVisionEstimate(String limelight) {
 
         if (!LimelightHelpers.getTV(limelight))
@@ -183,12 +275,25 @@ public class PoseTracker {
         return Optional.of(estimate);
     }
 
+    /**
+     * Valida si una medición de visión es confiable para fusión.
+     * 
+     * Criterios de validación:
+     * <ul>
+     *   <li>Distancia promedio a tags menor a 5.0 metros</li>
+     *   <li>Velocidad angular menor a 250 deg/s</li>
+     *   <li>Si ya hay pose inicial: error de posición menor a 2.0 metros</li>
+     * </ul>
+     *
+     * @param estimate estimación de visión a validar
+     * @return true si la medición pasa los criterios
+     */
     private boolean visionGate(PoseEstimate estimate) {
 
-        if (estimate.avgTagDist > 6.0)
+        if (estimate.avgTagDist > 5.0)
             return false;
 
-        if (Math.abs(swerve.getGyroRate()) > 720)
+        if (Math.abs(swerve.getGyroRate()) > 250)
             return false;
 
         Pose2d current = getPose();
@@ -198,14 +303,26 @@ public class PoseTracker {
         double dy = current.getY() - vision.getY();
 
         double error = Math.hypot(dx, dy);
-        /* 
+         
         if (initialPoseSetFromVision) {
             return error < 2.0;
-        }*/
+        }
 
         return true;
     }
 
+    /**
+     * Ajusta dinámicamente la desviación estándar de la medición de visión.
+     * 
+     * Factores considerados:
+     * <ul>
+     *   <li>Distancia promedio a tags (factor de distancia)</li>
+     *   <li>Cantidad de tags detectados (factor de cantidad)</li>
+     *   <li>Velocidad angular del robot (factor de giro)</li>
+     * </ul>
+     *
+     * @param estimate estimación de visión
+     */
     private void applyDynamicVisionStdDevs(PoseEstimate estimate) {
 
         double distanceFactor = Math.max(estimate.avgTagDist, 1.0);
@@ -218,13 +335,21 @@ public class PoseTracker {
         double gyroFactor = 1.0 + Math.abs(swerve.getGyroRate()) / 500.0;
 
         double xyStd = 0.03 * distanceFactor * tagFactor * gyroFactor;
-        double thetaStd = 0.05 * distanceFactor * gyroFactor;
+        double thetaStd = 0.12 * distanceFactor * gyroFactor;
 
         poseEstimator.setVisionMeasurementStdDevs(
                 VecBuilder.fill(xyStd, xyStd, thetaStd)
         );
     }
 
+    /**
+     * Procesa una medición de visión para fusión o inicialización de pose.
+     * 
+     * Si es la primera medición válida, usa para inicializar la pose.
+     * Posteriormente, valida y fusiona las mediciones según criterios de confianza.
+     *
+     * @param limelight identificador de la cámara
+     */
     private void processVision(String limelight) {
 
         Optional<PoseEstimate> vision = getVisionEstimate(limelight);
@@ -262,6 +387,14 @@ public class PoseTracker {
         }
     }
 
+    /**
+     * Aplica crop inteligente a la ventana de visión de la cámara.
+     * 
+     * Si hay tags detectados, centra el crop en el objetivo más cercano.
+     * Si no hay visión, resetea el crop a máximo.
+     *
+     * @param limelight identificador de la cámara
+     */
     private void applySmartCrop(String limelight) {
 
         if (!LimelightHelpers.getTV(limelight)) {
@@ -292,46 +425,48 @@ public class PoseTracker {
         );
     }
 
-    // --------------------------------------------------------------------
+    // ====================================================================
     // CICLO PERIÓDICO
-    // --------------------------------------------------------------------
+    // ====================================================================
 
     /**
-     * Debe ser llamado periódicamente (por ejemplo, desde {@code Swerve.periodic()}).
-     *
-     * Flujo general:
+     * Actualiza la estimación de pose del robot.
+     * 
+     * Debe ser llamado periódicamente (típicamente desde {@code Robot.periodic()}).
+     * Ejecuta en orden:
      * <ol>
-     *   <li>Detectar colisiones y decidir si actualizar solo por odometría.</li>
-     *   <li>Actualizar confianza (skid) y ajustar std dev de visión.</li>
-     *   <li>Procesar mediciones de Limelight (inicialización + fusión).</li>
-     *   <li>Publicar la pose a SmartDashboard y NetworkTables.</li>
+     *   <li>Detección de colisiones para invalidar odometría si es necesario</li>
+     *   <li>Actualización de odometría por módulos y giroscopio</li>
+     *   <li>Actualización de confianza en odometría (skid detection)</li>
+     *   <li>Procesamiento de mediciones de Limelight (inicialización + fusión)</li>
+     *   <li>Publicación de pose a dashboards y NetworkTables</li>
      * </ol>
      */
     public void periodic() {
-        // ======= 1. Actualización por odometría / colisión =======
+        // 1. Detección de colisiones e impactos
         if (collisionDetector.detectImpact(swerve)) {
-            // Se ha detectado una colisión fuerte: congela temporalmente odometría.
             collisionDetector.freeze();
         } else {
-            // Actualiza pose usando solo gyro + módulos swerve.
             poseEstimator.update(
                     swerve.getRotation2d(),
                     swerve.getSwerveModulePos()
             );
         }
 
-        // ======= 2. Skid detection / confianza en visión =======
+        // 2. Actualización de confianza en odometría
         confidenceTracker.update(swerve);
 
-        // ======= 3. Actualizaciones de visión (AprilTags / Limelight) =======
+        // 3. Procesamiento de visión (AprilTags / Limelight)
+        if (visionOn) {
 
-        applySmartCrop(LIMELIGHT_2);
-        applySmartCrop(LIMELIGHT_3);
+            applySmartCrop(LIMELIGHT_2);
+            applySmartCrop(LIMELIGHT_3);
 
-        processVision(LIMELIGHT_2);
-        processVision(LIMELIGHT_3);
+            processVision(LIMELIGHT_2);
+            processVision(LIMELIGHT_3);
+        }
 
-        // ======= 4. Publicación a Dashboard / NT =======
+        // 4. Publicación a dashboards y NetworkTables
         Pose2d estimatedPose = getPose();
         SmartDashboard.putString("Robot Pose", estimatedPose.toString());
         posePublisher.set(estimatedPose);

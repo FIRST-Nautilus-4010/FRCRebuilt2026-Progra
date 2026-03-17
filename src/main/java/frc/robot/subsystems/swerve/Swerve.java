@@ -12,71 +12,66 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ChassisConstants;
 
 /**
- * Subsistema principal de swerve del robot.
+ * Subsistema de conducción swerve del robot.
  *
- * Se encarga de:
- * <ul>
- *   <li>Gestionar los 4 módulos swerve</li>
- *   <li>Leer orientación y aceleraciones de gyro (Pigeon2 o NavX)</li>
- *   <li>Convertir velocidades de chasis en estados de módulos</li>
- *   <li>Publicar estados actuales y deseados a NetworkTables</li>
- * </ul>
+ * Gestiona los cuatro módulos swerve, los sensores de orientación (Pigeon2/NavX)
+ * y convierte velocidades de chasis en comandos para los módulos individuales.
+ * Proporciona funcionalidad de odometría, control field-relative y asistencia
+ * de conducción automática.
  */
 public class Swerve extends SubsystemBase {
 
-    // --------------------------------------------------------------------
-    // MÓDULOS
-    // --------------------------------------------------------------------
+    // ====================================================================
+    // MÓDULOS DE RUEDA
+    // ====================================================================
 
-    /** Módulo delantero izquierdo. */
+    /** Módulo swerve delantero izquierdo. */
     private final SwerveModule frontLeft =
             new SwerveModule(SwerveConstants.FL_PWR, SwerveConstants.FL_STR, SwerveConstants.FL_ENC);
 
-    /** Módulo delantero derecho. */
+    /** Módulo swerve delantero derecho. */
     private final SwerveModule frontRight =
             new SwerveModule(SwerveConstants.FR_PWR, SwerveConstants.FR_STR, SwerveConstants.FR_ENC);
 
-    /** Módulo trasero izquierdo. */
+    /** Módulo swerve trasero izquierdo. */
     private final SwerveModule backLeft =
             new SwerveModule(SwerveConstants.BL_PWR, SwerveConstants.BL_STR, SwerveConstants.BL_ENC);
 
-    /** Módulo trasero derecho. */
+    /** Módulo swerve trasero derecho. */
     private final SwerveModule backRight =
             new SwerveModule(SwerveConstants.BR_PWR, SwerveConstants.BR_STR, SwerveConstants.BR_ENC);
 
-    // --------------------------------------------------------------------
+    // ====================================================================
     // SENSORES DE ORIENTACIÓN
-    // --------------------------------------------------------------------
+    // ====================================================================
 
-    /** NavX (backup o alternativa al Pigeon). */
+    /** NavX (sensor de orientación alternativo o backup). */
     private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
 
-    /** Pigeon2 como IMU principal. */
+    /** Pigeon2 (IMU principal para lectura de orientación). */
     private final Pigeon2 pigeon = new Pigeon2(SwerveConstants.PIGEON, new CANBus("cleopatra"));
 
-    /**
-     * Indica si se debe usar el Pigeon2 como fuente principal de orientación.
-     * Si es {@code false}, se usa el NavX.
-     */
+    /** Flag para seleccionar la fuente primaria de orientación. */
     private boolean usePigeon = true;
 
-    // --------------------------------------------------------------------
+    // ====================================================================
     // PUBLICADORES A NETWORKTABLES
-    // --------------------------------------------------------------------
+    // ====================================================================
 
-    /** Estados medidos de los módulos (velocidad + ángulo). */
+    /** Estados medidos actuales de los módulos (para telemetría). */
     private final StructArrayPublisher<SwerveModuleState> swervePublisher =
             NetworkTableInstance.getDefault()
                     .getStructArrayTopic("Detected module states", SwerveModuleState.struct)
                     .publish();
 
-    /** Estados deseados de los módulos (comando). */
+    /** Estados deseados de los módulos (comandos). */
     private final StructArrayPublisher<SwerveModuleState> swerveDesiredStatePublisher =
             NetworkTableInstance.getDefault()
                     .getStructArrayTopic("desiredStates", SwerveModuleState.struct)
@@ -85,33 +80,41 @@ public class Swerve extends SubsystemBase {
     /**
      * Crea el subsistema Swerve.
      *
-     * @param usePigeon si {@code true}, se usa Pigeon2; si {@code false}, NavX.
+     * @param usePigeon si {@code true}, usa Pigeon2 como IMU principal;
+     *                  si {@code false}, usa NavX. Resetea el heading al inicializar.
      */
     public Swerve(boolean usePigeon) {
         this.usePigeon = usePigeon;
-
-        // Resetea heading al inicializar el subsistema.
         zeroHeading();
     }
 
-    // --------------------------------------------------------------------
+    // ====================================================================
     // CICLO PERIÓDICO
-    // --------------------------------------------------------------------
+    // ====================================================================
 
+    /**
+     * Actualiza el subsistema periódicamente.
+     * 
+     * Publica los estados actuales de los módulos a NetworkTables y telemetría
+     * básica a SmartDashboard.
+     */
     @Override
     public void periodic() {
-        // Publica estados actuales de los módulos a NetworkTables.
         swervePublisher.set(getSwerveModuleStates());
-
-        // Telemetría básica a SmartDashboard.
         SmartDashboard.putNumber("Robot Heading", getHeading());
     }
 
-    // --------------------------------------------------------------------
-    // ESTADOS DE MÓDULO / CHASIS
-    // --------------------------------------------------------------------
+    // ====================================================================
+    // ESTADOS DE MÓDULO Y CHASIS
+    // ====================================================================
 
-    /** Devuelve las posiciones actuales de los 4 módulos (para odometría). */
+    /**
+     * Obtiene las posiciones actuales de los cuatro módulos.
+     * 
+     * Utilizado para cálculos de odometría.
+     *
+     * @return Array de posiciones de módulo [FL, FR, BL, BR]
+     */
     public SwerveModulePosition[] getSwerveModulePos() {
         return new SwerveModulePosition[] {
                 frontLeft.getPosition(),
@@ -121,7 +124,13 @@ public class Swerve extends SubsystemBase {
         };
     }
 
-    /** Devuelve los estados actuales de los 4 módulos (velocidad + ángulo). */
+    /**
+     * Obtiene los estados actuales de los cuatro módulos.
+     * 
+     * Incluye velocidad y ángulo de orientación de cada rueda.
+     *
+     * @return Array de estados de módulo [FL, FR, BL, BR]
+     */
     public SwerveModuleState[] getSwerveModuleStates() {
         return new SwerveModuleState[] {
                 frontLeft.getState(),
@@ -131,16 +140,26 @@ public class Swerve extends SubsystemBase {
         };
     }
 
-    /** Devuelve la orientación actual como {@link Rotation2d}. */
+    /**
+     * Obtiene la orientación actual del robot.
+     *
+     * @return Rotation2d con el heading actual
+     */
     public Rotation2d getRotation2d() {
         return Rotation2d.fromDegrees(getHeading());
     }
 
-    // --------------------------------------------------------------------
+    // ====================================================================
     // ACELERACIONES
-    // --------------------------------------------------------------------
+    // ====================================================================
 
-    /** Aceleración lineal en X (m/s²) en el marco del robot. */
+    /**
+     * Obtiene la aceleración lineal en X (m/s²).
+     * 
+     * Lee desde el sensor configurado (Pigeon2 o NavX).
+     *
+     * @return Aceleración en X en el marco del robot
+     */
     public double getAccelX() {
         if (usePigeon) {
             return pigeon.getAccelerationX().getValue().magnitude();
@@ -149,7 +168,13 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    /** Aceleración lineal en Y (m/s²) en el marco del robot. */
+    /**
+     * Obtiene la aceleración lineal en Y (m/s²).
+     * 
+     * Lee desde el sensor configurado (Pigeon2 o NavX).
+     *
+     * @return Aceleración en Y en el marco del robot
+     */
     public double getAccelY() {
         if (usePigeon) {
             return pigeon.getAccelerationY().getValue().magnitude();
@@ -158,7 +183,13 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    /** Aceleración lineal en Z (m/s²). */
+    /**
+     * Obtiene la aceleración lineal en Z (m/s²).
+     * 
+     * Lee desde el sensor configurado (Pigeon2 o NavX).
+     *
+     * @return Aceleración en Z
+     */
     public double getAccelZ() {
         if (usePigeon) {
             return pigeon.getAccelerationZ().getValue().magnitude();
@@ -167,7 +198,11 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    /** Módulo de la aceleración lineal total. */
+    /**
+     * Calcula el módulo total de la aceleración lineal.
+     *
+     * @return Magnitud de aceleración (m/s²)
+     */
     public double getLinearAcceleration() {
         double ax = getAccelX();
         double ay = getAccelY();
@@ -175,7 +210,11 @@ public class Swerve extends SubsystemBase {
         return Math.sqrt(ax * ax + ay * ay + az * az);
     }
 
-    /** Velocidad media de las ruedas (m/s). */
+    /**
+     * Calcula la velocidad promedio de las cuatro ruedas.
+     *
+     * @return Velocidad promedio (m/s)
+     */
     public double getAverageWheelSpeed() {
         SwerveModuleState[] states = getSwerveModuleStates();
         double sum = 0.0;
@@ -185,7 +224,13 @@ public class Swerve extends SubsystemBase {
         return sum / states.length;
     }
 
-    /** Velocidad lineal del chasis calculada a partir de los estados de módulos. */
+    /**
+     * Calcula la velocidad lineal del chasis.
+     * 
+     * Se calcula a partir de los estados de módulos usando la cinemática swerve.
+     *
+     * @return Velocidad del chasis (m/s)
+     */
     public double getChassisSpeed() {
         ChassisSpeeds speeds =
                 ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
@@ -193,30 +238,43 @@ public class Swerve extends SubsystemBase {
         return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
     }
 
-    // --------------------------------------------------------------------
-    // GYRO
-    // --------------------------------------------------------------------
+    // ====================================================================
+    // SENSORES DE ORIENTACIÓN (GYRO)
+    // ====================================================================
 
-    /** Resetea el heading del sensor de orientación actual. */
+    /**
+     * Resetea el heading (yaw) del sensor de orientación.
+     * 
+     * Establece 0° para alianza azul y 180° para alianza roja.
+     */
     public void zeroHeading() {
+        final double resetHeading = DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? 180.0 : 0.0;
+
         if (usePigeon) {
-            pigeon.setYaw(0);
+            pigeon.setYaw(resetHeading);
         } else {
-            gyro.reset();
+            gyro.setAngleAdjustment(resetHeading);
         }
     }
     
-    /** Heading actual del robot en grados. */
+    /**
+     * Obtiene el heading (yaw) actual del robot.
+     *
+     * @return Ángulo de yaw en grados
+     */
     public double getHeading() {
         if (usePigeon) {
             return pigeon.getYaw().getValueAsDouble();
         } else {
-            // NavX usa convención opuesta, por eso el signo negativo.
             return -gyro.getAngle();
         }
     }
 
-    /** Pitch actual del robot en grados. */
+    /**
+     * Obtiene el pitch actual del robot.
+     *
+     * @return Ángulo de pitch en grados
+     */
     public double getPitch() {
         if (usePigeon) {
             return pigeon.getPitch().getValueAsDouble();
@@ -225,7 +283,11 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    /** Roll actual del robot en grados. */
+    /**
+     * Obtiene el roll actual del robot.
+     *
+     * @return Ángulo de roll en grados
+     */
     public double getRoll() {
         if (usePigeon) {
             return pigeon.getRoll().getValueAsDouble();
@@ -234,6 +296,11 @@ public class Swerve extends SubsystemBase {
         }
     }
 
+    /**
+     * Obtiene la velocidad angular en Z (yaw).
+     *
+     * @return Velocidad angular en rad/s
+     */
     public double getGyroRate() {
         if (usePigeon) {
             return pigeon.getAngularVelocityZWorld().getValueAsDouble();
@@ -242,6 +309,11 @@ public class Swerve extends SubsystemBase {
         }
     }
 
+    /**
+     * Obtiene la velocidad angular en Y (pitch).
+     *
+     * @return Velocidad angular en rad/s
+     */
     public double getPitchRate() {
         if (usePigeon) {
             return pigeon.getAngularVelocityYWorld().getValueAsDouble();
@@ -250,6 +322,11 @@ public class Swerve extends SubsystemBase {
         }
     }
 
+    /**
+     * Obtiene la velocidad angular en X (roll).
+     *
+     * @return Velocidad angular en rad/s
+     */
     public double getRollRate() {
         if (usePigeon) {
             return pigeon.getAngularVelocityXWorld().getValueAsDouble();
@@ -258,11 +335,15 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    // --------------------------------------------------------------------
-    // CONTROL DE MÓDULOS
-    // --------------------------------------------------------------------
+    // ====================================================================
+    // CONTROL DE MÓDULOS Y CONDUCCIÓN
+    // ====================================================================
 
-    /** Detiene los 4 módulos swerve. */
+    /**
+     * Detiene todos los módulos swerve.
+     * 
+     * Establece velocidad y ángulo a cero en todos los módulos.
+     */
     public void stopModules() {
         frontLeft.stop();
         frontRight.stop();
@@ -271,14 +352,16 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
-     * Conduce el robot en modo field-relative.
+     * Conduce el robot en modo field-relative (relativo al campo).
+     * 
+     * Convierte velocidades del marco del campo al marco del robot usando
+     * el heading actual, luego aplica los estados a los módulos.
      *
-     * @param xSpeed velocidad en X relativa al campo (m/s)
-     * @param ySpeed velocidad en Y relativa al campo (m/s)
+     * @param xSpeed velocidad en X del campo (m/s)
+     * @param ySpeed velocidad en Y del campo (m/s)
      * @param rot    velocidad angular (rad/s)
      */
     public void driveFieldRelative(double xSpeed, double ySpeed, double rot) {
-        // Convierte velocidades del marco del campo al marco del robot.
         ChassisSpeeds fieldRelativeSpeeds =
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                         xSpeed,
@@ -290,14 +373,17 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
-     * Conduce el robot en modo field-relative.
+     * Conduce el robot en modo field-relative con asistencia de conducción.
+     * 
+     * Similar a {@link #driveFieldRelative(double, double, double)} pero permite
+     * aplicar un vector objetivo para asistencias automáticas.
      *
-     * @param xSpeed velocidad en X relativa al campo (m/s)
-     * @param ySpeed velocidad en Y relativa al campo (m/s)
-     * @param rot    velocidad angular (rad/s)
+     * @param xSpeed        velocidad en X del campo (m/s)
+     * @param ySpeed        velocidad en Y del campo (m/s)
+     * @param rot           velocidad angular (rad/s)
+     * @param targetVector  array [ángulo (rad), distancia (m)] para asistencia
      */
     public void driveFieldRelative(double xSpeed, double ySpeed, double rot, double[] targetVector) {
-        // Convierte velocidades del marco del campo al marco del robot.
         ChassisSpeeds fieldRelativeSpeeds =
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                         xSpeed,
@@ -309,10 +395,13 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
-     * Conduce el robot con velocidades en el marco del robot.
+     * Conduce el robot con asistencia de conducción automática.
+     * 
+     * Calcula un vector de asistencia perpendicular al vector de movimiento
+     * para ayudar a mantener la orientación hacia un objetivo.
      *
-     * @param speeds velocidades de chasis (vx, vy, ω)
-     * @param targetVector vector objetivo [ángulo (rad), distancia (m)]
+     * @param speeds        velocidades de chasis deseadas (marco del robot)
+     * @param targetVector  array [ángulo (rad), distancia (m)] del objetivo
      */
     public void drive(ChassisSpeeds speeds, double[] targetVector) {
         double speedsAngle = Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
@@ -320,14 +409,13 @@ public class Swerve extends SubsystemBase {
         double angleToTarget = speedsAngle - targetVector[0];
 
         if (Math.abs(angleToTarget) >= Math.PI / 2) {
-            // Sin target válido, conducción normal.
+            // Sin objetivo válido, conducción normal
             drive(speeds);
             return;
         }
 
         double assistModule = Math.sin(speedsAngle - targetVector[0]) * targetVector[1];
 
-        // Convierte velocidades de chasis a estados de módulos.
         ChassisSpeeds asistedVector = new ChassisSpeeds(
             speeds.vyMetersPerSecond * assistModule * SwerveConstants.ASSIST_STRAFE_FACTOR,
             -speeds.vxMetersPerSecond * assistModule * SwerveConstants.ASSIST_STRAFE_FACTOR,
@@ -339,6 +427,9 @@ public class Swerve extends SubsystemBase {
 
     /**
      * Conduce el robot con velocidades en el marco del robot.
+     * 
+     * Convierte velocidades de chasis a estados de módulo y los aplica
+     * a cada rueda. Publica telemetría a NetworkTables.
      *
      * @param speeds velocidades de chasis (vx, vy, ω)
      */
@@ -346,21 +437,19 @@ public class Swerve extends SubsystemBase {
         SwerveModuleState[] moduleStates =
                 ChassisConstants.KINEMATICS.toSwerveModuleStates(speeds);
         
-        // Aplica estados a los módulos.
         setStates(moduleStates);
-
-        // Publica estados deseados a NetworkTables (telemetría).
         swerveDesiredStatePublisher.set(moduleStates);
     }
 
     /**
-     * Aplica estados deseados a cada módulo, desaturando si es necesario.
+     * Aplica estados deseados a los módulos con desaturación.
+     * 
+     * Asegura que ningún módulo exceda la velocidad máxima permitida y aplica
+     * compensación basada en inclinación (roll y pitch) del robot.
      *
-     * @param desiredStates array de 4 estados de módulo en el orden:
-     *                      FL, FR, BL, BR.
+     * @param desiredStates array de estados de módulo en orden [FL, FR, BL, BR]
      */
     public void setStates(SwerveModuleState[] desiredStates) {
-        // Asegura que ninguna rueda exceda la velocidad máxima.
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 desiredStates,
                 ChassisConstants.MAX_VELOCITY);
