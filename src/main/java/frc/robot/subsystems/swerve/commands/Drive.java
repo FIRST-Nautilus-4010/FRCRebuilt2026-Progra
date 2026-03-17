@@ -35,15 +35,16 @@ public class Drive extends Command {
 
     /* ---------- Assist flags ---------- */
 
-    private final Supplier<Boolean> assistX;
-    private final Supplier<Boolean> assistY;
-    private final Supplier<Boolean> assistTheta;
-    private final Supplier<Boolean> aimEnabled;
+    public static boolean assistX;
+    public static boolean assistY;
+    public static boolean assistTheta;
+    public static boolean aimEnabled;
+    public static boolean velocityHeadingEnabled;
 
     /* ---------- Targets ---------- */
 
     // Target de traslación (cuando assistX o assistY están activos)
-    private final Supplier<Pose2d> targetPose;
+    public static Pose2d targetPose;
 
     // Punto al que se quiere apuntar (solo usado si aimEnabled = true)
     private final Supplier<Pose2d> aimPose;
@@ -59,13 +60,8 @@ public class Drive extends Command {
             Supplier<Double> omegaInput,
             Supplier<Boolean> resetYaw,
 
-            Supplier<Boolean> assistX,
-            Supplier<Boolean> assistY,
-            Supplier<Boolean> assistTheta,
-            Supplier<Boolean> aimEnabled,
-
-            Supplier<Pose2d> targetPose,
             Supplier<Pose2d> aimPose
+
     ) {
 
         this.swerve = swerve;
@@ -75,13 +71,6 @@ public class Drive extends Command {
         this.yInput = yInput;
         this.omegaInput = omegaInput;
         this.resetYaw = resetYaw;
-
-        this.assistX = assistX;
-        this.assistY = assistY;
-        this.assistTheta = assistTheta;
-        this.aimEnabled = aimEnabled;
-
-        this.targetPose = targetPose;
         this.aimPose = aimPose;
 
         ProfiledPIDController thetaController =
@@ -112,16 +101,18 @@ public class Drive extends Command {
     public void execute() {
 
         Pose2d currentPose = poseTracker.getPose();
-        Pose2d baseTarget = targetPose.get();
+        Pose2d baseTarget = targetPose;
 
         /* ---------------- Rotación deseada para el controlador ---------------- */
 
         Rotation2d desiredRotation = new Rotation2d();
 
-        if (aimEnabled.get()) {
+        if (aimEnabled) {
             desiredRotation = computeAimRotation(currentPose);
-        } else if (assistTheta.get()) {
+        } else if (assistTheta) {
             desiredRotation = baseTarget.getRotation();
+        } else if (velocityHeadingEnabled) {
+            desiredRotation = computeVelocityHeading(currentPose);
         }
 
         Pose2d poseForController =
@@ -148,17 +139,17 @@ public class Drive extends Command {
 
         /* ---------------- Mezcla por asistencia ---------------- */
 
-        double vx = assistX.get()
+        double vx = assistX
                 ? auto.vxMetersPerSecond
                 : manVx;
 
-        double vy = assistY.get()
+        double vy = assistY
                 ? auto.vyMetersPerSecond
                 : manVy;
 
         double omega;
 
-        if (assistTheta.get()) {
+        if (assistTheta) {
             omega = auto.omegaRadiansPerSecond;
 
         } else {
@@ -184,7 +175,7 @@ public class Drive extends Command {
 
     private Rotation2d computeAimRotation(Pose2d currentPose) {
 
-        if (aimPose == null || aimPose.get() == null) {
+        if (aimPose.get() == null || aimPose.get() == null) {
             return currentPose.getRotation();
         }
 
@@ -194,6 +185,10 @@ public class Drive extends Command {
         double dy = aim.getY() - currentPose.getY();
 
         return new Rotation2d(Math.atan2(dy, dx));
+    }
+
+    private Rotation2d computeVelocityHeading(Pose2d currentPose) {
+        return new Rotation2d(Math.atan2(targetPose.getY() - currentPose.getY(), targetPose.getX() - currentPose.getX()));
     }
 
     private static double applyDeadzone(double value, double deadzone) {

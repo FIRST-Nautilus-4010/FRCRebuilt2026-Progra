@@ -16,6 +16,8 @@ import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.PoseTracker;
+import frc.robot.subsystems.swerve.commands.Drive;
+import frc.robot.subsystems.swerve.commands.Drive;
 import frc.robot.utils.TejuinoBoard;
 
 /**
@@ -49,15 +51,6 @@ public final class SubsystemManager {
     /** Supplier para la velocidad X del robot en modo TRAVEL. */
     private Supplier<Double> travelVxSupplier;
 
-    /** Flags de asistencia para controles de conducción automática. */
-    public boolean assistX = false;
-    public boolean assistY = false;
-    public boolean assistTheta = false;
-    /** Flag para habilitar el aiming automático hacia objetivos. */
-    public boolean aimEnabled = false;
-
-    /** Pose objetivo para comandos de navegación automática. */
-    public Pose2d targetPose = new Pose2d(0, 0, new Rotation2d(0));
     /** Pose calculada para aiming automático. */
     Pose2d aimPose = new Pose2d(0, 0, new Rotation2d(0));
     
@@ -106,12 +99,6 @@ public final class SubsystemManager {
             omega, 
             resetYaw,
 
-            () -> assistX,
-            () -> assistY,
-            () -> assistTheta,
-            () -> aimEnabled,
-
-            () -> targetPose,
             this::calculateAimPose
             
         );
@@ -175,10 +162,10 @@ public final class SubsystemManager {
      * indicador visual de estado deshabilitado.
      */
     public void disable() {
-        assistX = false;
-        assistY = false;
-        assistTheta = false;
-        aimEnabled = false;
+        Drive.assistX = false;
+        Drive.assistY = false;
+        Drive.assistTheta = false;
+        Drive.aimEnabled = false;
         tejuino.all_leds_purple(1);
         tejuino.all_leds_purple(2);
     }
@@ -235,10 +222,10 @@ public final class SubsystemManager {
                 CommandScheduler.getInstance().schedule(
                     new ParallelCommandGroup(
                         new InstantCommand(() -> {
-                            assistX = false;
-                            assistY = false;
-                            assistTheta = false;
-                            aimEnabled = false;
+                            Drive.assistX = false;
+                            Drive.assistY = false;
+                            Drive.assistTheta = false;
+                            Drive.aimEnabled = false;
                             tejuino.all_leds_blue(1);
                             tejuino.all_leds_blue(2);
                         }),
@@ -251,10 +238,10 @@ public final class SubsystemManager {
             case INTAKE:
                 CommandScheduler.getInstance().schedule(
                     new InstantCommand(() -> {
-                            assistX = false;
-                            assistY = false;
-                            assistTheta = false;
-                            aimEnabled = false;
+                            Drive.assistX = false;
+                            Drive.assistY = false;
+                            Drive.assistTheta = false;
+                            Drive.aimEnabled = false;
                             tejuino.all_leds_yellow(1);
                             tejuino.all_leds_yellow(2);
                         }),
@@ -267,14 +254,14 @@ public final class SubsystemManager {
             case SHOOT:
                 CommandScheduler.getInstance().schedule(
                     new InstantCommand(() -> {
-                            assistX = false;
-                            assistY = false;
-                            assistTheta = true;
-                            aimEnabled = true;
+                            Drive.assistX = false;
+                            Drive.assistY = false;
+                            Drive.assistTheta = true;
+                            Drive.aimEnabled = true;
                             tejuino.all_leds_red(1);
                             tejuino.all_leds_red(2);
                         }),
-                    intake.setMaxVelocityCommand(1),
+                    intake.setMaxVelocityCommand(3),
                     intake.stowCommand(),
                     shooter.shootCommand(
                         () -> calculateAimPose().getTranslation().getDistance(poseTracker.getPose().getTranslation())
@@ -284,10 +271,10 @@ public final class SubsystemManager {
             case CLIMB:
                 CommandScheduler.getInstance().schedule(
                     new InstantCommand(() -> {
-                            assistX = false;
-                            assistY = false;
-                            assistTheta = false;
-                            aimEnabled = false;
+                            Drive.assistX = false;
+                            Drive.assistY = false;
+                            Drive.assistTheta = false;
+                            Drive.aimEnabled = false;
                             tejuino.all_leds_green(1);
                             tejuino.all_leds_green(2);
                     }),

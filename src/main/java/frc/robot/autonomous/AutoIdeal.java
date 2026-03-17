@@ -6,8 +6,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
+import java.util.List;
+
 import frc.robot.SubsystemManager;
-import frc.robot.subsystems.swerve.commands.DriveTo;
+import frc.robot.subsystems.swerve.commands.DrivePath;
+import frc.robot.utils.PathUtil;
 import frc.robot.RobotState;
 
 public class AutoIdeal extends SequentialCommandGroup {
@@ -37,11 +40,14 @@ public class AutoIdeal extends SequentialCommandGroup {
 
         Pose2d prepareForIntakePos = new Pose2d(6.909, 1.262 + sideOffset, Rotation2d.fromDegrees(90 * rotationMultiplier));
         Pose2d intakePos = new Pose2d(8.043, 2.417 + sideOffset, Rotation2d.fromDegrees(90 * rotationMultiplier));
+
+        List<Pose2d> circularIntakePath = PathUtil.generateSemiCircle(intakePos.getX(), intakePos.getY(), 20, 0.5);
+        circularIntakePath.set(0, prepareForIntakePos);
         
         addCommands(
             // Disparar los 8 fuel iniciales
             new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
-            new DriveTo(manager, new Pose2d(3.230, initialPose.getY(), initialPose.getRotation())),
+            new DrivePath(manager, List.of(new Pose2d(3.230, initialPose.getY(), initialPose.getRotation()))),
             new InstantCommand(() -> manager.scheduleState(RobotState.SHOOT)),
             new WaitCommand(1.0),
 
@@ -49,24 +55,23 @@ public class AutoIdeal extends SequentialCommandGroup {
             new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
 
             // Salir del la aliance zone
+            // Añadimos prepareForIntakePos al final del camino para continuidad
             (initialPose.getY() > 4.033 && initialPose.getY() < 6.77) 
-                ? new DriveTo(manager, bumpPoseIn)
-                    .andThen(new DriveTo(manager, bumpPoseOut))
-                : new DriveTo(manager, trenchPoseIn)
-                    .andThen(new DriveTo(manager, trenchPoseOut)),
+                ? new DrivePath(manager, List.of(bumpPoseIn, bumpPoseOut, prepareForIntakePos))
+                : new DrivePath(manager, List.of(trenchPoseIn, trenchPoseOut, prepareForIntakePos)),
             
 
             // Recoger los fuel de la neutral zone
             new InstantCommand(() -> manager.scheduleState(RobotState.INTAKE)),
-            new DriveTo(manager, prepareForIntakePos),
-            new DriveTo(manager, intakePos),
+            // Combinamos el camino de preparación, la entrada y añadimos el siguiente punto (trenchPoseOut)
+            // para mantener continuidad al cambiar a TRAVEL después de la toma.
+            new DrivePath(manager, List.of(prepareForIntakePos, intakePos, trenchPoseOut)),
 
             // Regresar al estado travel
             new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
 
             // Ir a la zona de human para disparar los fuel recogidos
-            new DriveTo(manager, trenchPoseOut),
-            new DriveTo(manager, trenchPoseIn),
+            new DrivePath(manager, List.of(trenchPoseOut, trenchPoseIn)),
             new InstantCommand(() -> manager.scheduleState(RobotState.SHOOT)),
             new WaitCommand(3.0),
 
@@ -76,22 +81,24 @@ public class AutoIdeal extends SequentialCommandGroup {
             //--------------- Repetir el proceso ---------------
 
             // Salir del la aliance zone
-            new DriveTo(manager, trenchPoseIn),
-            new DriveTo(manager, trenchPoseOut),
-            
+            new DrivePath(manager,
+                List.of(
+                    trenchPoseIn,
+                    trenchPoseOut,
+                    prepareForIntakePos
+                )
+            ),
 
             // Recoger los fuel de la neutral zone
             new InstantCommand(() -> manager.scheduleState(RobotState.INTAKE)),
-            new DriveTo(manager, prepareForIntakePos),
-            new DriveTo(manager, intakePos),
+            new DrivePath(manager, circularIntakePath, true),
 
             // Regresar al estado travel
             new InstantCommand(() -> manager.scheduleState(RobotState.TRAVEL)),
 
             // Ir a la zona de human para disparar los fuel recogidos y los que ingrese el human
-            new DriveTo(manager, trenchPoseOut),
-            new DriveTo(manager, trenchPoseIn),
-            new DriveTo(manager, humanPose),
+            // Agrupamos las poses en un solo DrivePath (no añadimos la siguiente pose después de SHOOT)
+            new DrivePath(manager, List.of(trenchPoseOut, trenchPoseIn, humanPose)),
             new InstantCommand(() -> manager.scheduleState(RobotState.SHOOT)),
             new WaitCommand(3.0),
 

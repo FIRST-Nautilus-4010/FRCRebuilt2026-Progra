@@ -8,20 +8,29 @@ public class DriveTo extends Command {
 
     private final SubsystemManager manager;
     private final Pose2d target;
+    private final boolean velocityHeadingEnabled;
+
+    public DriveTo(SubsystemManager manager, Pose2d target, boolean velocityHeadingEnabled) {
+        this.manager = manager;
+        this.target = target;
+        this.velocityHeadingEnabled = velocityHeadingEnabled;
+    }
 
     public DriveTo(SubsystemManager manager, Pose2d target) {
         this.manager = manager;
         this.target = target;
+        this.velocityHeadingEnabled = false;
     }
 
     @Override
     public void initialize() {
 
-        manager.targetPose = target;
+        Drive.targetPose = target;
 
-        manager.assistX = true;
-        manager.assistY = true;
-        manager.assistTheta = true;
+        Drive.assistX = true;
+        Drive.assistY = true;
+        Drive.assistTheta = true;
+        Drive.velocityHeadingEnabled = velocityHeadingEnabled;
     }
 
     @Override
@@ -38,8 +47,9 @@ public class DriveTo extends Command {
     @Override
     public void end(boolean interrupted) {
 
-        manager.assistX = false;
-        manager.assistY = false;
-        manager.assistTheta = false;
+        Drive.assistX = false;
+        Drive.assistY = false;
+        Drive.assistTheta = false;
+        Drive.velocityHeadingEnabled = false;
     }
 }

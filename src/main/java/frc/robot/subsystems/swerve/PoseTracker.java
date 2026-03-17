@@ -136,12 +136,6 @@ public class PoseTracker {
         Supplier<Double> omegaInput,
         Supplier<Boolean> resetYaw,
 
-        Supplier<Boolean> assistX,
-        Supplier<Boolean> assistY,
-        Supplier<Boolean> assistTheta,
-        Supplier<Boolean> aimEnabled,
-
-        Supplier<Pose2d> targetPose,
         Supplier<Pose2d> aimPose    
     ) {
         swerve.setDefaultCommand(
@@ -154,12 +148,6 @@ public class PoseTracker {
                 omegaInput,
                 resetYaw,
 
-                assistX,
-                assistY,
-                assistTheta,
-                aimEnabled,
-
-                targetPose,
                 aimPose
             )
         
