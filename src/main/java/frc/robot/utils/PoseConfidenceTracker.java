@@ -25,11 +25,6 @@ public class PoseConfidenceTracker {
      */
     private static final double SKID_SPEED_DIFF_THRESHOLD = 0.5;
 
-    /**
-     * Umbral de distancia máxima entre visión y odometría para confiar
-     * en la medición de visión (metros).
-     */
-    private static final double VISION_TRUST_DISTANCE_THRESHOLD_METERS = 1.0;
 
     /**
      * Actualiza el estado interno de skid en base al subsistema swerve.
@@ -47,18 +42,5 @@ public class PoseConfidenceTracker {
     /** @return {@code true} si se detecta posible skid (poca confianza en odometría). */
     public boolean isSkidding() {
         return skidding;
-    }
-
-    /**
-     * Decide si se debe confiar en una medición de visión comparándola
-     * con la pose de odometría actual.
-     *
-     * @param vision pose medida por visión (por ejemplo, Limelight / AprilTags)
-     * @param odom   pose estimada por odometría
-     * @return {@code true} si la diferencia entre ambas es menor que el umbral
-     */
-    public boolean shouldTrustVision(Pose2d vision, Pose2d odom) {
-        double distance = vision.getTranslation().getDistance(odom.getTranslation());
-        return distance < VISION_TRUST_DISTANCE_THRESHOLD_METERS;
     }
 }

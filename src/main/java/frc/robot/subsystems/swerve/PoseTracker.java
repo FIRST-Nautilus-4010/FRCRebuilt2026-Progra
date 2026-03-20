@@ -366,7 +366,7 @@ public class PoseTracker {
             );
         }
 
-        if (confidenceTracker.shouldTrustVision(pose, getPose())) {
+        if (confidenceTracker.isSkidding()) {
 
             poseEstimator.addVisionMeasurement(
                     pose,

@@ -17,7 +17,6 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.PoseTracker;
 import frc.robot.subsystems.swerve.commands.Drive;
-import frc.robot.subsystems.swerve.commands.Drive;
 import frc.robot.utils.TejuinoBoard;
 
 /**
@@ -68,7 +67,7 @@ public final class SubsystemManager {
         this.poseTracker = new PoseTracker();
         this.intake = new Intake();
         this.shooter = new Shooter();
-        this.channeler = new Channeler(() -> shooter.getIO().getSpinVelocityRPS());
+        this.channeler = new Channeler(shooter.getIO()::getSpinVelocityRPS);
         this.tejuino = new TejuinoBoard();
         this.climber = new Climber();
     }
@@ -106,7 +105,7 @@ public final class SubsystemManager {
 
     /**
      * Calcula la pose de aiming óptima según la posición actual del robot
-     * y la alianza. Selecciona el objetivo disponible más cercano.
+     * y la alianza.
      *
      * @return Pose2d con la posición y rotación recomendada para el shooter
      */

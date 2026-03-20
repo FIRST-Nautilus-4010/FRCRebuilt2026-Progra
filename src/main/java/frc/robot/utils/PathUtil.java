@@ -23,8 +23,6 @@ public class PathUtil {
             double px = xc + r * Math.cos(t);
             double py = yc + r * Math.sin(t);
 
-            /* -------- Dirección tangente (muy importante) -------- */
-
             double dx = -r * Math.sin(t);
             double dy =  r * Math.cos(t);
 

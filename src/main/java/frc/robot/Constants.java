@@ -47,10 +47,10 @@ public final class Constants {
     public static final double MAX_ANG_SPD = 4.79 * Math.PI;
 
     /** Aceleración lineal máxima esperada del chasis (m/s²). */
-    public static final double MAX_ACCEL = 479.0;
+    public static final double MAX_ACCEL = 12.753;
 
     /** Aceleración angular máxima esperada del chasis (rad/s²). */
-    public static final double MAX_ANG_ACCEL = 479.0;
+    public static final double MAX_ANG_ACCEL = 4.79 * Math.PI;
   }
 
   // ------------------------------------------------------------------------
