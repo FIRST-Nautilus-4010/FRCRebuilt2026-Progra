@@ -238,6 +238,27 @@ public class Swerve extends SubsystemBase {
         return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
     }
 
+    public double getChassisAngularSpeed() {
+        ChassisSpeeds speeds =
+                ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
+
+        return speeds.omegaRadiansPerSecond;
+    }
+
+    public double getXChassisSpeed() {
+        ChassisSpeeds speeds =
+                ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
+
+        return speeds.vxMetersPerSecond;
+    }
+
+    public double getYChassisSpeed() {
+        ChassisSpeeds speeds =
+                ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
+
+        return speeds.vyMetersPerSecond;
+    }
+
     // ====================================================================
     // SENSORES DE ORIENTACIÓN (GYRO)
     // ====================================================================

@@ -103,6 +103,11 @@ public class Drive extends Command {
         Pose2d currentPose = poseTracker.getPose();
         Pose2d baseTarget = targetPose;
 
+        // Si no hay objetivo de traslación, usa la pose actual
+        if (baseTarget == null) {
+            baseTarget = currentPose;
+        }
+
         /* ---------------- Rotación deseada para el controlador ---------------- */
 
         Rotation2d desiredRotation = new Rotation2d();

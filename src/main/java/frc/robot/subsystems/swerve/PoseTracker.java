@@ -3,9 +3,12 @@ package frc.robot.subsystems.swerve;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -42,6 +45,10 @@ public class PoseTracker {
     private static final String LIMELIGHT_2 = "limelight-comosea";
     /** Identificador de la cámara Limelight secundaria. */
     private static final String LIMELIGHT_3 = "limelight-three";
+
+    private final PIDController xController = new PIDController(AutonomousConstants.P_X, AutonomousConstants.I_X, AutonomousConstants.D_X);
+    private final PIDController yController = new PIDController(AutonomousConstants.P_Y, AutonomousConstants.I_Y, AutonomousConstants.D_Y);
+    private final PIDController headingController = new PIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z);
 
     // ====================================================================
     // ESTIMADOR DE POSE Y PUBLICACIÓN
@@ -152,6 +159,21 @@ public class PoseTracker {
             )
         
         );
+    }
+
+    public void followTrajectory(SwerveSample sample) {
+                // Get the current pose of the robot
+        Pose2d pose = getPose();
+
+        // Generate the next speeds for the robot
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            sample.vx + xController.calculate(pose.getX(), sample.x),
+            sample.vy + yController.calculate(pose.getY(), sample.y),
+            sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
+        );
+
+        // Apply the generated speeds
+        swerve.driveFieldRelative(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
     }
 
     /**

@@ -38,19 +38,19 @@ public final class Constants {
         new Translation2d(TRACKWIDTH / 2.0,  WHEELBASE / 2.0),   // Front Left
         new Translation2d(TRACKWIDTH / 2.0, -WHEELBASE / 2.0),   // Front Right
         new Translation2d(-TRACKWIDTH / 2.0, WHEELBASE / 2.0),   // Back Left
-        new Translation2d(-TRACKWIDTH / 2.0,-WHEELBASE / 2.0));  // Back Right
+        new Translation2d(-TRACKWIDTH / 2.0, -WHEELBASE / 2.0));  // Back Right
 
     /** Velocidad lineal máxima del chasis (m/s). */
     public static final double MAX_VELOCITY = 3.9;
 
     /** Velocidad angular máxima del chasis (rad/s). */
-    public static final double MAX_ANG_SPD = 4.79 * Math.PI;
+    public static final double MAX_ANG_SPD = 8.582;
 
     /** Aceleración lineal máxima esperada del chasis (m/s²). */
-    public static final double MAX_ACCEL = 12.753;
+    public static final double MAX_ACCEL = 13.565;
 
     /** Aceleración angular máxima esperada del chasis (rad/s²). */
-    public static final double MAX_ANG_ACCEL = 4.79 * Math.PI;
+    public static final double MAX_ANG_ACCEL = 34.779;
   }
 
   // ------------------------------------------------------------------------
