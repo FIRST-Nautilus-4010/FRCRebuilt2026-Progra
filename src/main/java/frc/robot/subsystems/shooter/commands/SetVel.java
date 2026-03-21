@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterController;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
 
 public class SetVel extends Command {
@@ -35,7 +36,7 @@ public class SetVel extends Command {
         if (distance != null) {
             double x = distance.get();
 
-            velocity = 2.11384 * Math.pow(x, 2) - 9.66687 * x + 60.05155;
+            velocity = ShooterConstants.VEL_TABLE.get(x);
         }
 
         controller.setVelocity(velocity);

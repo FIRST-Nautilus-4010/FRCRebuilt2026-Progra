@@ -2,6 +2,9 @@ package frc.robot.subsystems.shooter;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -21,6 +24,11 @@ public class Shooter extends SubsystemBase{
     /** Controlador del motor de lanzamiento. */
     private final ShooterController controller;
 
+    private double vel = 0;
+    private final NetworkTable table;
+
+    private final NetworkTableEntry velEntry;
+
     /**
      * Crea el subsistema Shooter.
      *
@@ -30,6 +38,12 @@ public class Shooter extends SubsystemBase{
     public Shooter() {
         this.io = new ShooterIO();
         this.controller = new ShooterController(io.getSpinMotor(), io.getSpinMotorSecondary());
+
+        table = NetworkTableInstance.getDefault().getTable("SmartDashboard");
+
+        velEntry = table.getEntry("debug/DesiredShooterVel");
+
+        velEntry.setDefaultDouble(0.0);
     }
 
     /**
@@ -42,6 +56,7 @@ public class Shooter extends SubsystemBase{
      * @return Comando para ejecutar el disparo
      */
     public Command shootCommand(Supplier<Double> distance) {
+        //return new SetVel(this, controller, io, distance);
         return new SetVel(this, controller, io, distance);
     }
 
@@ -77,10 +92,14 @@ public class Shooter extends SubsystemBase{
     /**
      * Actualiza el subsistema periódicamente.
      * 
-     * Publica la velocidad actual del motor a SmartDashboard para telemetría.
+     * Publica la velocidad actual del motor a SmartDashboard para telemetría
+     * y lee la velocidad deseada desde SmartDashboard si el usuario la cambia.
      */
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Shooter velocity (RPS)", io.getSpinVelocityRPS());
+        // Publica la velocidad actual de lectura del motor
+        SmartDashboard.putNumber("debug/Shooter velocity (RPS)", io.getSpinVelocityRPS());
+
+        vel = velEntry.getDouble(0.0);
     }
 }

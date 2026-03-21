@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.autonomous.AutoIdeal;
 
 /**
  * Contenedor central de configuración del robot.
@@ -157,6 +158,7 @@ public class RobotContainer {
     autoChooser.addRoutine("Human Side", () -> getRoutine(autoFactory, "HumanSide"));
     autoChooser.addRoutine("Human Opposed", () -> getRoutine(autoFactory, "HumanOpposed"));
     autoChooser.addRoutine("Center", () -> getRoutine(autoFactory, "Center"));
+    autoChooser.addRoutine("Test", () -> getRoutine(autoFactory, "Test"));
     
     // ====================================================================
     // PUBLICACIÓN EN SMARTDASHBOARD/SHUFFLEBOARD
@@ -185,6 +187,7 @@ public class RobotContainer {
     }
     
     return selectedCommand;
+    //return new AutoIdeal(subsystemManager);
   }
 
   private AutoRoutine getRoutine(AutoFactory autoFactory, String trajectoryName) {
@@ -206,10 +209,10 @@ public class RobotContainer {
     
     // Cuando la rutina se activa, resetea la odometría y comienza a seguir la trayectoria
     routine.active().onTrue(
-      Commands.sequence(
-        trajectory.resetOdometry(),  // Resetea pose al inicio de la trayectoria
-        trajectory.cmd()             // Ejecuta el seguimiento de la trayectoria
-      )
+        trajectory.resetOdometry().andThen(
+          trajectory.cmd()
+        )  // Resetea pose al inicio de la trayectoria
+                 // Ejecuta el seguimiento de la trayectoria
     );
 
     // ====================================================================

@@ -75,6 +75,7 @@ public final class Constants {
 
     // Ganancias PID para control de ángulo (theta).
     public static final double P_Z = 10;
+    //public static final double P_Z = 10000;
     public static final double I_Z = 0.0;
     public static final double D_Z = 0.0;
 

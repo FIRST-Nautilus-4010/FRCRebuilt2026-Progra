@@ -5,7 +5,9 @@ import java.util.function.Supplier;
 
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -46,9 +48,9 @@ public class PoseTracker {
     /** Identificador de la cámara Limelight secundaria. */
     private static final String LIMELIGHT_3 = "limelight-three";
 
-    private final PIDController xController = new PIDController(AutonomousConstants.P_X, AutonomousConstants.I_X, AutonomousConstants.D_X);
-    private final PIDController yController = new PIDController(AutonomousConstants.P_Y, AutonomousConstants.I_Y, AutonomousConstants.D_Y);
-    private final PIDController headingController = new PIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z);
+    // Controladores para seguimiento de trayectoria (Choreo)
+    private final ProfiledPIDController thetaController;
+    private final HolonomicDriveController holonomicController;
 
     // ====================================================================
     // ESTIMADOR DE POSE Y PUBLICACIÓN
@@ -104,6 +106,29 @@ public class PoseTracker {
                 swerve.getRotation2d(),
                 swerve.getSwerveModulePos(),
                 AutonomousConstants.initialPose
+        );
+
+        // Inicializa controladores para seguimiento de trayectoria (Choreo)
+        this.thetaController = new ProfiledPIDController(
+                AutonomousConstants.P_Z,
+                AutonomousConstants.I_Z,
+                AutonomousConstants.D_Z,
+                AutonomousConstants.Z_CONTROLER
+        );
+        this.thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        this.holonomicController = new HolonomicDriveController(
+                new PIDController(
+                        AutonomousConstants.P_X,
+                        AutonomousConstants.I_X,
+                        AutonomousConstants.D_X
+                ),
+                new PIDController(
+                        AutonomousConstants.P_Y,
+                        AutonomousConstants.I_Y,
+                        AutonomousConstants.D_Y
+                ),
+                thetaController
         );
     }
 
@@ -162,14 +187,15 @@ public class PoseTracker {
     }
 
     public void followTrajectory(SwerveSample sample) {
-                // Get the current pose of the robot
+        // Get the current pose of the robot
         Pose2d pose = getPose();
 
-        // Generate the next speeds for the robot
-        ChassisSpeeds speeds = new ChassisSpeeds(
-            sample.vx + xController.calculate(pose.getX(), sample.x),
-            sample.vy + yController.calculate(pose.getY(), sample.y),
-            sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
+        // Generate the next speeds for the robot using persistent controllers
+        ChassisSpeeds speeds = holonomicController.calculate(
+            pose,
+            sample.getPose(),
+            Math.hypot(sample.vx, sample.vy),
+            sample.getPose().getRotation()
         );
 
         // Apply the generated speeds
@@ -345,10 +371,9 @@ public class PoseTracker {
         double gyroFactor = 1.0 + Math.abs(swerve.getGyroRate()) / 500.0;
 
         double xyStd = 0.03 * distanceFactor * tagFactor * gyroFactor;
-        double thetaStd = 0.12 * distanceFactor * gyroFactor;
 
         poseEstimator.setVisionMeasurementStdDevs(
-                VecBuilder.fill(xyStd, xyStd, thetaStd)
+                VecBuilder.fill(xyStd, xyStd, 999999)
         );
     }
 

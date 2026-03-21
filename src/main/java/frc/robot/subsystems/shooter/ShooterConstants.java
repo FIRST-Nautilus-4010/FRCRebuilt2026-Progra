@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+
 /**
  * Constantes de configuración del subsistema Shooter.
  *
@@ -59,4 +61,22 @@ public class ShooterConstants {
 
     /** Velocidad de liberación/lanzamiento de fuel (rotaciones/segundo). */
     public static final double RELEASE_VELOCITY = -10.0;
+
+    // ====================================================================
+    // INTERPOLACIÓN
+    // ====================================================================
+
+    public static final InterpolatingDoubleTreeMap VEL_TABLE = new InterpolatingDoubleTreeMap();
+
+    static {
+        VEL_TABLE.put(1.5, 46.0);
+        VEL_TABLE.put(2.0, 46.0);
+        VEL_TABLE.put(2.5, 49.0);
+        VEL_TABLE.put(3.0, 52.0);
+        VEL_TABLE.put(3.5, 54.0);
+        VEL_TABLE.put(4.0, 56.5);
+        VEL_TABLE.put(4.5, 59.2);
+        VEL_TABLE.put(5.0, 61.3);
+
+    }
 }

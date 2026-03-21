@@ -306,6 +306,7 @@ public final class SubsystemManager {
         SmartDashboard.putString("Robot State", robotState.toString());
 
         SmartDashboard.putString("Aim Pose", calculateAimPose().toString());
+        SmartDashboard.putNumber("Aim Pose Distance", calculateAimPose().getTranslation().getDistance(poseTracker.getPose().getTranslation()));
         aimPosePublisher.set(aimPose);
     }
 }
