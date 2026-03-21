@@ -10,11 +10,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+
+import java.util.List;
+
 import choreo.Choreo;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import choreo.trajectory.TrajectorySample;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -22,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.AutoIdeal;
+import frc.robot.subsystems.swerve.commands.DrivePath;
 
 /**
  * Contenedor central de configuración del robot.
@@ -188,6 +193,8 @@ public class RobotContainer {
     
     return selectedCommand;
     //return new AutoIdeal(subsystemManager);
+
+    //return new DrivePath(subsystemManager, List.of(Choreo.loadTrajectory("HumanOpposed").get().getPoses()));
   }
 
   private AutoRoutine getRoutine(AutoFactory autoFactory, String trajectoryName) {
@@ -214,7 +221,7 @@ public class RobotContainer {
         )  // Resetea pose al inicio de la trayectoria
                  // Ejecuta el seguimiento de la trayectoria
     );
-
+    /*
     // ====================================================================
     // ZONA DE ACTIVACIÓN: INTAKE
     // ====================================================================
@@ -233,6 +240,7 @@ public class RobotContainer {
     // ZONA DE ACTIVACIÓN: SHOOTER
     // ====================================================================
     // Se activa shooter en zonas de disparo con tiempo de espera variable
+    
     trajectory.atPose("ShooterActivationZone1", 0.2, 0.2).onTrue(
       Commands.sequence(
         new InstantCommand(() -> subsystemManager.executeState(RobotState.SHOOT)),
@@ -253,7 +261,7 @@ public class RobotContainer {
         new WaitCommand(5.0),   // Espera 5 segundos
         new InstantCommand(() -> subsystemManager.executeState(RobotState.TRAVEL))
       )
-    );
+    );*/
 
     return routine;
   }
