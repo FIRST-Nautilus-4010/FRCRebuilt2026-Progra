@@ -285,7 +285,7 @@ public final class SubsystemManager {
                 break;
             case TEST:
                 CommandScheduler.getInstance().schedule(
-                     intake.stowCommand()
+                    intake.stowCommand()
                 );
                 break;
             default:
