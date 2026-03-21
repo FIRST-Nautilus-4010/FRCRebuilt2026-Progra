@@ -198,63 +198,56 @@ public class RobotContainer {
     AutoRoutine routine = autoFactory.newRoutine("autoRoutine");
 
     // Carga la trayectoria desde el archivo de Choreo
-    AutoTrajectory trajectory = routine.trajectory(trajectoryName);
+    AutoTrajectory trajectory1 = routine.trajectory(trajectoryName + "1");
+    AutoTrajectory trajectory2 = routine.trajectory(trajectoryName + "2");
+
     
     // ====================================================================
     // PUBLICACIÓN DE TRAYECTORIA EN ADVANTAGE SCOPE
     // ====================================================================
     // Publica la trayectoria para visualizarla en Advantage Scope
-    publishTrajectoryToAdvantageScope(trajectory, trajectoryName);
+    publishTrajectoryToAdvantageScope(trajectory1, trajectoryName + "1");
+    publishTrajectoryToAdvantageScope(trajectory2, trajectoryName + "2");
 
-    
-    // Cuando la rutina se activa, resetea la odometría y comienza a seguir la trayectoria
     routine.active().onTrue(
-        trajectory.resetOdometry().andThen(
-          trajectory.cmd()
-        )  // Resetea pose al inicio de la trayectoria
-                 // Ejecuta el seguimiento de la trayectoria
+      new InstantCommand(() -> subsystemManager.scheduleState(RobotState.SHOOT))
+        .andThen(new WaitCommand(1))
+        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.TRAVEL)))
+        .andThen(trajectory1.cmd())
+        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.SHOOT)))
+        .andThen(new WaitCommand(3))
+        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.TRAVEL)))
+        .andThen(trajectory2.cmd())
+        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.SHOOT)))
+        .andThen(new WaitCommand(5))
+        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.TRAVEL)))
     );
 
     // ====================================================================
     // ZONA DE ACTIVACIÓN: INTAKE
     // ====================================================================
     // Se activa intake cuando la trayectoria pasa cerca de zonas de recolección
-    trajectory.atPose("IntakeActivationZone1", 1, 1).onTrue(
+    /*
+    trajectory1.atPose("IntakeActivationZone1", 1, 1).onTrue(
       new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
     );
-    trajectory.atPose("IntakeActivationZone2", 1, 1).onTrue(
+    trajectory1.atPose("IntakeActivationZone2", 1, 1).onTrue(
       new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
     );
-    trajectory.atPose("IntakeActivationZone3", 1, 1).onTrue(
+    trajectory1.atPose("IntakeActivationZone3", 1, 1).onTrue(
       new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
     );
 
-    // ====================================================================
-    // ZONA DE ACTIVACIÓN: SHOOTER
-    // ====================================================================
-    // Se activa shooter en zonas de disparo con tiempo de espera variable
-    trajectory.atPose("ShooterActivationZone1", 0.2, 0.2).onTrue(
-      Commands.sequence(
-        new InstantCommand(() -> subsystemManager.executeState(RobotState.SHOOT)),
-        new WaitCommand(1.0),   // Espera 1 segundo para que acelere
-        new InstantCommand(() -> subsystemManager.executeState(RobotState.TRAVEL))
-      )
+    trajectory2.atPose("IntakeActivationZone1", 1, 1).onTrue(
+      new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
     );
-    trajectory.atPose("ShooterActivationZone2", 0.2, 0.2).onTrue(
-      Commands.sequence(
-        new InstantCommand(() -> subsystemManager.executeState(RobotState.SHOOT)),
-        new WaitCommand(4.0),   // Espera 4 segundos
-        new InstantCommand(() -> subsystemManager.executeState(RobotState.TRAVEL))
-      )
+    trajectory2.atPose("IntakeActivationZone2", 1, 1).onTrue(
+      new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
     );
-    trajectory.atPose("ShooterActivationZone3", 0.2, 0.2).onTrue(
-      Commands.sequence(
-        new InstantCommand(() -> subsystemManager.executeState(RobotState.SHOOT)),
-        new WaitCommand(5.0),   // Espera 5 segundos
-        new InstantCommand(() -> subsystemManager.executeState(RobotState.TRAVEL))
-      )
+    trajectory2.atPose("IntakeActivationZone3", 1, 1).onTrue(
+      new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
     );
-
+     */
     return routine;
   }
 

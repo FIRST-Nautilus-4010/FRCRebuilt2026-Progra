@@ -199,7 +199,7 @@ public class PoseTracker {
         );
 
         // Apply the generated speeds
-        swerve.driveFieldRelative(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
+        swerve.driveFieldRelative(speeds.vxMetersPerSecond + sample.vx, speeds.vyMetersPerSecond + sample.vy, speeds.omegaRadiansPerSecond + sample.omega);
     }
 
     /**
