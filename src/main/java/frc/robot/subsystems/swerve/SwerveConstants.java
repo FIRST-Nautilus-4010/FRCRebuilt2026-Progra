@@ -173,7 +173,7 @@ public final class SwerveConstants {
     public static final double MAX_FRONT_ACCEL = 13.565;
 
     /** Aceleración máxima lateral (m/s²) en el modelo de estabilidad. */
-    public static final double MAX_SIDE_ACCEL = 13.565;
+    public static final double MAX_SIDE_ACCEL = 11;
 
     /**
      * Coeficiente de fricción efectivo rueda-suelo.

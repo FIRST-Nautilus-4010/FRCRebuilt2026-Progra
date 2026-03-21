@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -195,7 +196,7 @@ public class PoseTracker {
             pose,
             sample.getPose(),
             Math.hypot(sample.vx, sample.vy),
-            sample.getPose().getRotation()
+            new Rotation2d(sample.heading)
         );
 
         // Apply the generated speeds
