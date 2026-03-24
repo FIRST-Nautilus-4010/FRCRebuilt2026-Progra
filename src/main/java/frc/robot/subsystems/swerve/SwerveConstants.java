@@ -180,7 +180,7 @@ public final class SwerveConstants {
      * <p>
      * Se usa solo para derivar la aceleración lateral máxima por skid.
      */
-    private static final double FRICTION_COF = 1.3;
+    private static final double FRICTION_COF = 1.2;
 
     /**
      * Aceleración máxima antes de patinar (skid) en m/s².

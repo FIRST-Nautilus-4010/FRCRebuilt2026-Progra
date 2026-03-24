@@ -231,11 +231,11 @@ public class Swerve extends SubsystemBase {
      *
      * @return Velocidad del chasis (m/s)
      */
-    public double getChassisSpeed() {
+    public ChassisSpeeds getChassisSpeed() {
         ChassisSpeeds speeds =
                 ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
 
-        return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+        return speeds;
     }
 
     public double getChassisAngularSpeed() {
@@ -257,6 +257,13 @@ public class Swerve extends SubsystemBase {
                 ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
 
         return speeds.vyMetersPerSecond;
+    }
+
+    public double getChassisSpeedMagnitude() {
+        ChassisSpeeds speeds =
+                ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
+
+        return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
     }
 
     // ====================================================================

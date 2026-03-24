@@ -143,27 +143,15 @@ public class RobotContainer {
     // CONFIGURACIÓN DE AUTONOMÍA CON CHOREO
     // ====================================================================
     
-    // Obtiene la alianza con manejo seguro de Optional
-    boolean isRed = DriverStation.getAlliance()
-        .map(alliance -> alliance == DriverStation.Alliance.Red)
-        .orElse(false); // Default: Blue si no hay alianza disponible
-
-    // Crea el factory para rutas autónomas con trayectorias de Choreo
-    final AutoFactory autoFactory = new AutoFactory(
-      subsystemManager.getPoseTracker()::getPose,              // Supplier de pose actual
-      subsystemManager.getPoseTracker()::resetOdometry,       // Consumer para reset de odometría
-      subsystemManager.getPoseTracker()::followTrajectory,    // Consumer para seguimiento de trayectoria
-      isRed,                                                    // Flag de alianza (Red=true, Blue=false)
-      subsystemManager.getPoseTracker().getSwerve()            // Subsistema swerve para comandos
-    );
+    Auto auto = new Auto(subsystemManager);
 
     autoChooser = new AutoChooser();
 
     // Agrega rutinas autónomas disponibles
-    autoChooser.addRoutine("Human Side", () -> getRoutine(autoFactory, "HumanSide"));
-    autoChooser.addRoutine("Human Opposed", () -> getRoutine(autoFactory, "HumanOpposed"));
-    autoChooser.addRoutine("Center", () -> getRoutine(autoFactory, "Center"));
-    autoChooser.addRoutine("Test", () -> getRoutine(autoFactory, "Test"));
+    autoChooser.addCmd("Human Side", () -> auto.getCommand("HumanSide"));
+    autoChooser.addCmd("Human Opposed", () -> auto.getCommand("HumanOpposed"));
+    autoChooser.addCmd("Center", () -> auto.getCommand("Center"));
+    autoChooser.addCmd("Test", () -> auto.getCommand("Test"));
     
     // ====================================================================
     // PUBLICACIÓN EN SMARTDASHBOARD/SHUFFLEBOARD
@@ -195,67 +183,6 @@ public class RobotContainer {
     //return new AutoIdeal(subsystemManager);
 
     //return new DrivePath(subsystemManager, List.of(Choreo.loadTrajectory("HumanOpposed").get().getPoses()));
-  }
-
-  private AutoRoutine getRoutine(AutoFactory autoFactory, String trajectoryName) {
-    // ====================================================================
-    // CONFIGURACIÓN DE RUTINA AUTÓNOMA CON CHOREO
-    // ====================================================================
-    
-    AutoRoutine routine = autoFactory.newRoutine("autoRoutine");
-
-    // Carga la trayectoria desde el archivo de Choreo
-    AutoTrajectory trajectory1 = routine.trajectory(trajectoryName + "1");
-    AutoTrajectory trajectory2 = routine.trajectory(trajectoryName + "2");
-
-    
-    // ====================================================================
-    // PUBLICACIÓN DE TRAYECTORIA EN ADVANTAGE SCOPE
-    // ====================================================================
-    // Publica la trayectoria para visualizarla en Advantage Scope
-    publishTrajectoryToAdvantageScope(trajectory1, trajectoryName + "1");
-    publishTrajectoryToAdvantageScope(trajectory2, trajectoryName + "2");
-
-    routine.active().onTrue(
-      new InstantCommand(() -> subsystemManager.scheduleState(RobotState.SHOOT))
-        .andThen(new WaitCommand(1))
-        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.TRAVEL)))
-        .andThen(trajectory1.cmd())
-        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.SHOOT)))
-        .andThen(new WaitCommand(3))
-        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.TRAVEL)))
-        .andThen(trajectory2.cmd())
-        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.SHOOT)))
-        .andThen(new WaitCommand(5))
-        .andThen(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.TRAVEL)))
-    );
-    /*
-    // ====================================================================
-    // ZONA DE ACTIVACIÓN: INTAKE
-    // ====================================================================
-    // Se activa intake cuando la trayectoria pasa cerca de zonas de recolección
-    /*
-    trajectory1.atPose("IntakeActivationZone1", 1, 1).onTrue(
-      new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
-    );
-    trajectory1.atPose("IntakeActivationZone2", 1, 1).onTrue(
-      new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
-    );
-    trajectory1.atPose("IntakeActivationZone3", 1, 1).onTrue(
-      new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
-    );
-
-    trajectory2.atPose("IntakeActivationZone1", 1, 1).onTrue(
-      new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
-    );
-    trajectory2.atPose("IntakeActivationZone2", 1, 1).onTrue(
-      new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
-    );
-    trajectory2.atPose("IntakeActivationZone3", 1, 1).onTrue(
-      new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE))
-    );
-     */
-    return routine;
   }
 
   /**
