@@ -40,7 +40,7 @@ public final class SubsystemManager {
     /** Subsistema de lanzamiento de notas. */
     private final Shooter shooter;
     /** Controlador de la placa Tejuino para LEDs y feedback visual. */
-    private final TejuinoBoard tejuino;
+    //private final TejuinoBoard tejuino;
     /** Subsistema de escalada. */
     private final Climber climber;
 
@@ -68,7 +68,7 @@ public final class SubsystemManager {
         this.intake = new Intake();
         this.shooter = new Shooter();
         this.channeler = new Channeler(shooter.getIO()::getSpinVelocityRPS);
-        this.tejuino = new TejuinoBoard();
+        //this.tejuino = new TejuinoBoard();
         this.climber = new Climber();
     }
 
@@ -151,7 +151,7 @@ public final class SubsystemManager {
      */
     public void initialize() {
         executeState(RobotState.TRAVEL);
-        tejuino.init(40);
+        //tejuino.init(40);
     }
 
     /**
@@ -165,8 +165,8 @@ public final class SubsystemManager {
         Drive.assistY = false;
         Drive.assistTheta = false;
         Drive.aimEnabled = false;
-        tejuino.all_leds_purple(1);
-        tejuino.all_leds_purple(2);
+        //tejuino.all_leds_purple(1);
+        //tejuino.all_leds_purple(2);
     }
 
     /**
@@ -225,8 +225,8 @@ public final class SubsystemManager {
                             Drive.assistY = false;
                             Drive.assistTheta = false;
                             Drive.aimEnabled = false;
-                            tejuino.all_leds_blue(1);
-                            tejuino.all_leds_blue(2);
+                            //tejuino.all_leds_blue(1);
+                            //tejuino.all_leds_blue(2);
                         }),
                         intake.stopCommand(),
                         channeler.stopCommand(),
@@ -241,8 +241,8 @@ public final class SubsystemManager {
                             Drive.assistY = false;
                             Drive.assistTheta = false;
                             Drive.aimEnabled = false;
-                            tejuino.all_leds_yellow(1);
-                            tejuino.all_leds_yellow(2);
+                            //tejuino.all_leds_yellow(1);
+                            //tejuino.all_leds_yellow(2);
                         }),
                     intake.resetMaxVelocityCommand(),
                     intake.grabCommand(),
@@ -257,8 +257,8 @@ public final class SubsystemManager {
                             Drive.assistY = false;
                             Drive.assistTheta = true;
                             Drive.aimEnabled = true;
-                            tejuino.all_leds_red(1);
-                            tejuino.all_leds_red(2);
+                            //tejuino.all_leds_red(1);
+                            //tejuino.all_leds_red(2);
                         }),
                     intake.setMaxVelocityCommand(3),
                     intake.stowCommand(),
@@ -274,8 +274,8 @@ public final class SubsystemManager {
                             Drive.assistY = false;
                             Drive.assistTheta = false;
                             Drive.aimEnabled = false;
-                            tejuino.all_leds_green(1);
-                            tejuino.all_leds_green(2);
+                            //tejuino.all_leds_green(1);
+                            //tejuino.all_leds_green(2);
                     }),
                     intake.resetMaxVelocityCommand(),
                     intake.stowCommand(),
