@@ -100,9 +100,15 @@ public class RobotContainer {
     // CONFIGURACIÓN DE ALIANZA Y MULTIPLICADOR DE LADO
     // ====================================================================
     // Obtiene la alianza con manejo seguro de Optional
-    boolean isRed = DriverStation.getAlliance()
-        .map(alliance -> alliance == DriverStation.Alliance.Red)
-        .orElse(false); // Default: Blue si no hay alianza disponible
+    boolean isRed;
+
+    if (DriverStation.getAlliance().isPresent()) {
+      isRed = DriverStation.getAlliance()
+          .map(alliance -> alliance == DriverStation.Alliance.Red)
+          .orElse(false); // Default: Blue si no hay alianza disponible 
+    } else {
+      isRed = false;
+    }
     
     final double sideMultiplier = isRed ? -1.0 : 1.0;
     

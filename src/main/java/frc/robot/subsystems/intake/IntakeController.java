@@ -3,7 +3,9 @@ package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
@@ -25,8 +27,7 @@ public class IntakeController {
     // --- Motores físicos ---
 
     /** Motor de giro. */
-    private final TalonFX spinBackMotor;
-    private final TalonFX spinFrontMotor;
+    private final TalonFX spinMotor;
 
     /** Motor del pivote. */
     private final TalonFX pivotMotor;
@@ -60,9 +61,8 @@ public class IntakeController {
      * @param spinFrontMotor  TalonFX usado como spin (giro)
      * @param pivotMotor TalonFX usado como pivot (pivote)
      */
-    public IntakeController(TalonFX spinBackMotor, TalonFX spinFrontMotor, TalonFX pivotMotor) {
-        this.spinBackMotor = spinBackMotor;
-        this.spinFrontMotor = spinFrontMotor;
+    public IntakeController(TalonFX spinMotor, TalonFX pivotMotor) {
+        this.spinMotor = spinMotor;
         this.pivotMotor = pivotMotor;
 
         // Instancia configuraciones vacías que luego llenamos con nuestras constantes.
@@ -85,8 +85,7 @@ public class IntakeController {
         configureSoftLimits();
 
         // Aplica las configuraciones a los TalonFX.
-        this.spinBackMotor.getConfigurator().apply(spinConfig);
-        this.spinFrontMotor.getConfigurator().apply(spinConfig);
+        this.spinMotor.getConfigurator().apply(spinConfig);
         this.pivotMotor.getConfigurator().apply(pivotConfig);
     }
 
@@ -111,6 +110,8 @@ public class IntakeController {
         pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         pivotConfig.CurrentLimits.StatorCurrentLimit = 120;
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        pivotConfig.Feedback.SensorToMechanismRatio = 8.33333;
     }
 
     /**
@@ -144,6 +145,7 @@ public class IntakeController {
         slot0.kP = IntakeConstants.POS_KP;
         slot0.kI = IntakeConstants.POS_KI;
         slot0.kD = IntakeConstants.POS_KD;
+        slot0.GravityType = GravityTypeValue.Arm_Cosine;
     }
 
     /**
@@ -173,9 +175,9 @@ public class IntakeController {
     private void configureSoftLimits() {
         // Configura los soft limits del pivote.
         pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = IntakeConstants.PIVOT_SOFT_LIMIT_FORWARD / IntakeConstants.ROT_2_RAD;
+        pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = IntakeConstants.PIVOT_SOFT_LIMIT_FORWARD;
         pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = IntakeConstants.PIVOT_SOFT_LIMIT_REVERSE / IntakeConstants.ROT_2_RAD;
+        pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = IntakeConstants.PIVOT_SOFT_LIMIT_REVERSE;
     }
 
     // --------------------------------------------------------------------
@@ -187,14 +189,12 @@ public class IntakeController {
      *
      * @param velocityMps velocidad objetivo en rotaciones por segundo.
      */
-    public void setVelocity(double velocityRps, double velocityRpsSecondary) {
+    public void setVelocity(double velocityRps) {
         if (Math.abs(velocityRps) > 0.1) {
             double motorVelocity = velocityRps;
-            spinBackMotor.setControl(velocityRequest.withVelocity(motorVelocity));
-            spinFrontMotor.setControl(velocityRequest.withVelocity(velocityRpsSecondary));
+            spinMotor.setControl(velocityRequest.withVelocity(motorVelocity));
         } else {
-            spinBackMotor.stopMotor();
-            spinFrontMotor.stopMotor();
+            spinMotor.stopMotor();
         }
     }
 
@@ -206,13 +206,24 @@ public class IntakeController {
      *                 {@link IntakeConstants#ROT_2_RAD}.
      */
     public void setAngle(double angleRad) {
-        if (Math.abs(angleRad - pivotMotor.getPosition().getValueAsDouble()) > Math.toRadians(1)){
+        // Obtiene la posición actual en radianes
+        double currentPositionRad = pivotMotor.getPosition().getValueAsDouble() * IntakeConstants.ROT_2_RAD;
+        
+        // Si no está en la posición objetivo, envía el comando de posición
+        if (Math.abs(angleRad - currentPositionRad) > Math.toRadians(1)){
             // Convierte de radianes a rotaciones del eje (considerando relación de transmisión).
             double rotations = angleRad / IntakeConstants.ROT_2_RAD;
             pivotMotor.setControl(positionRequest.withPosition(rotations));
         } else {
             pivotMotor.stopMotor();
         }
+    }
+
+    public void keepPos() {
+        pivotMotor.setControl(new VoltageOut(0.06 + 
+        1.25 * Math.cos(
+            pivotMotor.getPosition().getValueAsDouble() * IntakeConstants.ROT_2_RAD
+        )));
     }
 
     public void setMaxVelocity(double maxVel) {

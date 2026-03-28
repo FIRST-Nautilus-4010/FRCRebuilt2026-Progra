@@ -22,8 +22,6 @@ public class Move extends Command {
   double angle;
   /** Velocidad objetivo del spinner principal (RPS). */
   double spinVelocity;
-  /** Velocidad objetivo del spinner secundario (RPS). */
-  double spinVelocitySecondary;
 
   /**
    * Crea un comando para posicionar el pivote y controlar los spinners.
@@ -35,10 +33,9 @@ public class Move extends Command {
    * @param io interfaz de hardware del subsistema
    * @param intake subsistema Intake (para requirements)
    */
-  public Move(double angle, double spinVelocity, double spinVelocitySecondary, IntakeController controller, IntakeIO io, Intake intake) {
+  public Move(double angle, double spinVelocity, IntakeController controller, IntakeIO io, Intake intake) {
     this.angle = angle;
     this.spinVelocity = spinVelocity;
-    this.spinVelocitySecondary = spinVelocitySecondary;
     this.controller = controller;
     this.io = io;
 
@@ -51,7 +48,13 @@ public class Move extends Command {
   @Override
   public void execute() {
     controller.setAngle(angle);
-    controller.setVelocity(spinVelocity, spinVelocitySecondary);
+    controller.setVelocity(spinVelocity);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    //controller.keepPos();
+    io.getPivotMotor().stopMotor();
   }
 
   /**
@@ -65,7 +68,7 @@ public class Move extends Command {
    */
   @Override
   public boolean isFinished() {
-    return (io.getPivotPositionRad() - angle) < 0.05 &&
+    return Math.abs(io.getPivotPositionRad() - angle) < 0.2 &&
             Math.abs(io.getSpinVelocityRPS() - spinVelocity) < 0.1;
   }
 }

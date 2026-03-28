@@ -42,7 +42,7 @@ public final class SubsystemManager {
     /** Controlador de la placa Tejuino para LEDs y feedback visual. */
     //private final TejuinoBoard tejuino;
     /** Subsistema de escalada. */
-    private final Climber climber;
+    //private final Climber climber;
 
     /** Estado operacional actual del robot. */
     private RobotState robotState = RobotState.TRAVEL;
@@ -69,7 +69,7 @@ public final class SubsystemManager {
         this.shooter = new Shooter();
         this.channeler = new Channeler(shooter.getIO()::getSpinVelocityRPS);
         //this.tejuino = new TejuinoBoard();
-        this.climber = new Climber();
+        //this.climber = new Climber();
     }
 
     /**
@@ -112,9 +112,17 @@ public final class SubsystemManager {
     private Pose2d calculateAimPose() {
         Pose2d pose = poseTracker.getPose();
 
-        var alliance = DriverStation.getAlliance();
+        boolean isRed;
 
-        if (alliance.get() == DriverStation.Alliance.Blue) {
+        if (DriverStation.getAlliance().isPresent()) {
+        isRed = DriverStation.getAlliance()
+            .map(alliance -> alliance == DriverStation.Alliance.Red)
+            .orElse(false); // Default: Blue si no hay alianza disponible 
+        } else {
+        isRed = false;
+        }
+
+        if (!isRed) {
             if (pose.getX() <= 4.625) {
                 aimPose = new Pose2d(4.625, 4.033, new Rotation2d(180));
             } else if (pose.getY() >= 4.033) {
@@ -260,11 +268,13 @@ public final class SubsystemManager {
                             //tejuino.all_leds_red(1);
                             //tejuino.all_leds_red(2);
                         }),
-                    intake.setMaxVelocityCommand(3),
-                    intake.stowCommand(),
+                    intake.setMaxVelocityCommand(0.1),
                     shooter.shootCommand(
                         () -> calculateAimPose().getTranslation().getDistance(poseTracker.getPose().getTranslation())
-                    ).andThen(channeler.feedCommand())
+                    ).andThen(
+                        channeler.feedCommand().andThen(
+                            intake.stowCommand()
+                    ))
                 );
                 break;
             case CLIMB:

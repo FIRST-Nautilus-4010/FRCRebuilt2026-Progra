@@ -13,14 +13,10 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
  */
 public class IntakeIO {
     
-    /** Motor TalonFX del spinner trasero. */
-    private final TalonFX spinBackMotor;
-    /** Motor TalonFX del spinner frontal. */
-    private final TalonFX spinFrontMotor;
+    /** Motor TalonFX del spinner. */
+    private final TalonFX spinMotor;
     /** Motor TalonFX del pivote derecho (principal). */
-    private final TalonFX pivotRMotor;
-    /** Motor TalonFX del pivote izquierdo (seguidor con alineación opuesta). */
-    private final TalonFX pivotLMotor;
+    private final TalonFX pivotMotor;
 
     /**
      * Crea la interfaz de hardware del Intake.
@@ -29,13 +25,10 @@ public class IntakeIO {
      * como seguidor del pivote derecho con alineación opuesta.
      */
     public IntakeIO() {
-        this.spinBackMotor = new TalonFX(IntakeConstants.SPIN_BACK_TALONFX_ID);
-        this.pivotRMotor = new TalonFX(IntakeConstants.PIVOT_R_TALONFX_ID);
-        this.spinFrontMotor = new TalonFX(IntakeConstants.SPIN_FRONT_TALONFX_ID);
+        this.spinMotor = new TalonFX(IntakeConstants.SPIN_TALONFX_ID);
+        this.pivotMotor = new TalonFX(IntakeConstants.PIVOT_TALONFX_ID);
 
-        this.pivotLMotor = new TalonFX(IntakeConstants.PIVOT_L_TALONFX_ID);
-
-        pivotLMotor.setControl(new Follower(pivotRMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        this.pivotMotor.setPosition(0.332275);
     }
 
     /**
@@ -44,7 +37,7 @@ public class IntakeIO {
      * @return Posición en radianes
      */
     public double getPivotPositionRad() {
-        return pivotRMotor.getPosition().getValueAsDouble() * IntakeConstants.ROT_2_RAD;
+        return pivotMotor.getPosition().getValueAsDouble() * IntakeConstants.ROT_2_RAD;
     }
 
     /**
@@ -53,25 +46,15 @@ public class IntakeIO {
      * @return Velocidad en rotaciones por segundo (RPS)
      */
     public double getSpinVelocityRPS() {
-        return spinBackMotor.getVelocity().getValueAsDouble();
+        return spinMotor.getVelocity().getValueAsDouble();
     }
     
     /**
      * Detiene todos los motores del subsistema.
      */
     public void stopMotors() {
-        spinBackMotor.stopMotor();
-        spinFrontMotor.stopMotor();
-        pivotRMotor.stopMotor();
-    }
-
-    /**
-     * Obtiene una referencia al motor del spinner trasero.
-     *
-     * @return Motor TalonFX del spinner trasero
-     */
-    public TalonFX getspinBackMotor() {
-        return spinBackMotor;
+        spinMotor.stopMotor();
+        pivotMotor.stopMotor();
     }
 
     /**
@@ -79,8 +62,8 @@ public class IntakeIO {
      *
      * @return Motor TalonFX del spinner frontal
      */
-    public TalonFX getspinFrontMotor() {
-        return spinFrontMotor;
+    public TalonFX getspinMotor() {
+        return spinMotor;
     }
 
     /**
@@ -89,6 +72,6 @@ public class IntakeIO {
      * @return Motor TalonFX del pivote derecho
      */
     public TalonFX getPivotMotor() {
-        return pivotRMotor;
+        return pivotMotor;
     }
 }
