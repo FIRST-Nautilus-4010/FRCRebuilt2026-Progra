@@ -5,29 +5,15 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import com.pathplanner.lib.auto.AutoBuilder;
 
-import java.util.List;
-
-import choreo.Choreo;
-import choreo.auto.AutoChooser;
-import choreo.auto.AutoFactory;
-import choreo.auto.AutoRoutine;
-import choreo.auto.AutoTrajectory;
-import choreo.trajectory.TrajectorySample;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.autonomous.AutoIdeal;
-import frc.robot.subsystems.swerve.commands.DrivePath;
-
 /**
  * Contenedor central de configuración del robot.
  *
@@ -43,11 +29,8 @@ public class RobotContainer {
   /** Gestor centralizado de subsistemas y estados del robot. */
   private final SubsystemManager subsystemManager;
 
-  private AutoChooser autoChooser;
-
-  private StructArrayPublisher<Pose2d> tArrayPublisher = NetworkTableInstance.getDefault()
-                    .getStructArrayTopic("Auto Trajectory", Pose2d.struct)
-                    .publish();
+  /** Chooser de comandos autónomos para selección en SmartDashboard/Shuffleboard. */
+  private final SendableChooser<Command> autoChooser;
 
   /**
    * Crea e inicializa el contenedor del robot.
@@ -64,7 +47,18 @@ public class RobotContainer {
 
     subsystemManager.initialize();
 
-    configureAutoChooser();
+    PathPlannerAutoBuilder.initialize(subsystemManager);
+
+    boolean isCompetition = DriverStation.isFMSAttached();
+
+    autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+      (stream) -> isCompetition
+        ? stream.filter(auto -> !auto.getName().startsWith("Test")) // Excluye "Test" en competencia
+        : stream // Incluye todas las opciones en pruebas
+
+    );
+
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
@@ -144,28 +138,6 @@ public class RobotContainer {
     travelTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.TRAVEL)));
   }  
   
-  private void configureAutoChooser() {
-    // ====================================================================
-    // CONFIGURACIÓN DE AUTONOMÍA CON CHOREO
-    // ====================================================================
-    
-    Auto auto = new Auto(subsystemManager);
-
-    autoChooser = new AutoChooser();
-
-    // Agrega rutinas autónomas disponibles
-    autoChooser.addCmd("Human Side", () -> auto.getCommand("HumanSide"));
-    autoChooser.addCmd("Human Opposed", () -> auto.getCommand("HumanOpposed"));
-    autoChooser.addCmd("Center", () -> auto.getCommand("Center"));
-    autoChooser.addCmd("Test", () -> auto.getCommand("Test"));
-    
-    // ====================================================================
-    // PUBLICACIÓN EN SMARTDASHBOARD/SHUFFLEBOARD
-    // ====================================================================
-    // Publica el chooser para que aparezca en Shuffleboard
-    SmartDashboard.putData("Auto Chooser", autoChooser);
-    System.out.println("[RobotContainer] AutoChooser publicado en SmartDashboard/Shuffleboard");
-  }
 
   /**
    * Retorna el comando autónomo a ejecutar.
@@ -177,7 +149,7 @@ public class RobotContainer {
    * @return Comando autónomo a ejecutar (o comando vacío si no hay selección)
    */
   public Command getAutonomousCommand() {
-    Command selectedCommand = autoChooser.selectedCommandScheduler();
+    Command selectedCommand = autoChooser.getSelected();
     
     // Validación: si no hay comando seleccionado, retorna un comando vacío
     if (selectedCommand == null) {
@@ -206,23 +178,6 @@ public class RobotContainer {
     if (autoChooser != null) {
       SmartDashboard.putData("Auto Chooser", autoChooser);
     }
-  }
-
-  /**
-   * Publica la trayectoria en NetworkTables para visualizarla en Advantage Scope.
-   *
-   * Carga la trayectoria de Choreo y la envía a NetworkTables en el topic
-   * "/Advantage Scope/Trajectories/{trajectoryName}" para que pueda ser
-   * visualizada en Advantage Scope.
-   *
-   * @param trajectory Trayectoria de Choreo a publicar
-   * @param trajectoryName Nombre de la trayectoria (utilizado como identificador)
-   */
-  private void publishTrajectoryToAdvantageScope(AutoTrajectory trajectory, String trajectoryName) {
-    Pose2d[] trajectoryPoints = trajectory.getRawTrajectory().getPoses();
-
-
-    tArrayPublisher.set(trajectoryPoints);
   }
 
   /**

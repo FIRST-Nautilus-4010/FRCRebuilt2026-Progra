@@ -38,6 +38,21 @@ public class ShooterIO {
     public double getSpinVelocityRPS() {
         return spinMotor.getVelocity().getValueAsDouble();
     }
+
+    /**
+     * Calcula la velocidad de salida estimada del fuel basado en la velocidad de rotación del motor.
+     *
+     * @return Velocidad de salida estimada en metros por segundo (m/s)
+     */
+    public double getEstimatedExitVelocity(double distance) {
+        double rps = ShooterConstants.VEL_TABLE.get(distance);
+
+        double omega = 2 * Math.PI * rps;
+
+        double linearVelocity = omega * ShooterConstants.FLYWHEEL_RADIUS_METERS;
+
+        return linearVelocity * ShooterConstants.FLYWHEEL_EFFICIENCY;
+    }
     
     /**
      * Detiene el motor de lanzamiento.

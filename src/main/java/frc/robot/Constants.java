@@ -41,16 +41,16 @@ public final class Constants {
         new Translation2d(-TRACKWIDTH / 2.0, -WHEELBASE / 2.0));  // Back Right
 
     /** Velocidad lineal máxima del chasis (m/s). */
-    public static final double MAX_VELOCITY = 5.293;
+    public static final double MAX_VELOCITY = 5;
 
     /** Velocidad angular máxima del chasis (rad/s). */
     public static final double MAX_ANG_SPD = 13.401;
 
     /** Aceleración lineal máxima esperada del chasis (m/s²). */
-    public static final double MAX_ACCEL = 9.379;
+    public static final double MAX_ACCEL = 11.9;
 
     /** Aceleración angular máxima esperada del chasis (rad/s²). */
-    public static final double MAX_ANG_ACCEL = 29.613;
+    public static final double MAX_ANG_ACCEL = 50.71927;
   }
 
   // ------------------------------------------------------------------------

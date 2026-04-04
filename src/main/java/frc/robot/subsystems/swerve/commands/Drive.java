@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-
 import frc.robot.Constants.AutonomousConstants;
 import frc.robot.Constants.ChassisConstants;
 import frc.robot.subsystems.swerve.PoseTracker;
@@ -108,11 +107,58 @@ public class Drive extends Command {
             baseTarget = currentPose;
         }
 
+        /* ---------------- Entradas manuales ---------------- */
+
+        double manVx = xInput.get() * ChassisConstants.MAX_VELOCITY;
+        double manVy = yInput.get() * ChassisConstants.MAX_VELOCITY;
+        double manOmega = omegaInput.get() * ChassisConstants.MAX_ANG_SPD;
+
+        manVx = applyDeadzone(manVx, LIN_DEADZONE);
+        manVy = applyDeadzone(manVy, LIN_DEADZONE);
+        manOmega = applyDeadzone(manOmega, ANG_DEADZONE);
+
         /* ---------------- Rotación deseada para el controlador ---------------- */
 
         Rotation2d desiredRotation = new Rotation2d();
 
+        double vx = manVx;
+        double vy = manVy;
+
+        double scale = 1.0;
+
         if (aimEnabled) {
+
+            /* ---------------- ERROR ANGULAR ---------------- */
+
+            double angleError =
+                desiredRotation.minus(currentPose.getRotation()).getRadians();
+
+            // Normalizar a [-pi, pi]
+            angleError = Math.atan2(Math.sin(angleError), Math.cos(angleError));
+
+            // Escala suave (coseno)
+            double angleScale = Math.cos(angleError);
+
+            /* ---------------- CAPACIDAD ANGULAR ---------------- */
+
+            double maxOmega = ChassisConstants.MAX_ANG_SPD;
+
+            double timeToCorrect = Math.abs(angleError) / maxOmega;
+
+            double speed = Math.hypot(vx, vy);
+
+            // evita división por cero
+            double timeToTravel = 1.0 / Math.max(speed, 0.01);
+
+            double capabilityScale = 1.0 - Math.min(1.0, timeToCorrect / timeToTravel);
+
+            /* ---------------- COMBINACIÓN ---------------- */
+
+            scale = Math.min(angleScale, capabilityScale);
+
+            // Clamp para que no muera el robot
+            scale = Math.max(0.25, scale);
+
             desiredRotation = computeAimRotation(currentPose);
         } else if (assistTheta) {
             desiredRotation = baseTarget.getRotation();
@@ -132,25 +178,15 @@ public class Drive extends Command {
                 desiredRotation
         );
 
-        /* ---------------- Entradas manuales ---------------- */
-
-        double manVx = xInput.get() * ChassisConstants.MAX_VELOCITY;
-        double manVy = yInput.get() * ChassisConstants.MAX_VELOCITY;
-        double manOmega = omegaInput.get() * ChassisConstants.MAX_ANG_SPD;
-
-        manVx = applyDeadzone(manVx, LIN_DEADZONE);
-        manVy = applyDeadzone(manVy, LIN_DEADZONE);
-        manOmega = applyDeadzone(manOmega, ANG_DEADZONE);
-
         /* ---------------- Mezcla por asistencia ---------------- */
 
-        double vx = assistX
-                ? auto.vxMetersPerSecond
-                : manVx;
+        if (assistX) {
+            vx = auto.vxMetersPerSecond;
+        }
 
-        double vy = assistY
-                ? auto.vyMetersPerSecond
-                : manVy;
+        if (assistY) {
+            vy = auto.vyMetersPerSecond;
+        }
 
         double omega;
 
@@ -163,7 +199,7 @@ public class Drive extends Command {
 
         /* ---------------- Drive (siempre field-relative) ---------------- */
 
-        swerve.driveFieldRelative(vx, vy, omega);
+        swerve.driveFieldRelative(vx * scale, vy * scale, omega);
 
         // Opción para resetear yaw del gyro (por ejemplo, botón en el joystick).
         if (resetYaw.get()) {

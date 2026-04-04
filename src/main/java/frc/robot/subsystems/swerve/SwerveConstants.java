@@ -167,13 +167,13 @@ public final class SwerveConstants {
     // --------------------------------------------------------------------
 
     /** Aceleración máxima hacia adelante (m/s²) usada en el limitador. */
-    public static final double MAX_FORDWARD_ACCEL = 9.379;
+    public static final double MAX_FORDWARD_ACCEL = 11.9;
 
     /** Aceleración máxima frontal (m/s²) en el modelo de estabilidad. */
-    public static final double MAX_FRONT_ACCEL = 9.379;
+    public static final double MAX_FRONT_ACCEL = 11.9;
 
     /** Aceleración máxima lateral (m/s²) en el modelo de estabilidad. */
-    public static final double MAX_SIDE_ACCEL = 9.379;
+    public static final double MAX_SIDE_ACCEL = 11.9;
 
     /**
      * Coeficiente de fricción efectivo rueda-suelo.
@@ -195,7 +195,7 @@ public final class SwerveConstants {
      * Si la velocidad deseada está dentro de este rango alrededor de 0,
      * se fuerza a 0 para evitar vibraciones.
      */
-    public static final double VELOCITY_DEADZONE = 0.10;
+    public static final double VELOCITY_DEADZONE = 0.07;
 
     /** Factor de asistencia al strafe en el modo asistido. */
     public static final double ASSIST_STRAFE_FACTOR = 0.4;

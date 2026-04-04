@@ -3,15 +3,12 @@ package frc.robot.subsystems.swerve;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -185,22 +182,6 @@ public class PoseTracker {
             )
         
         );
-    }
-
-    public void followTrajectory(SwerveSample sample) {
-        // Get the current pose of the robot
-        Pose2d pose = getPose();
-
-        // Generate the next speeds for the robot using persistent controllers
-        ChassisSpeeds speeds = holonomicController.calculate(
-            pose,
-            sample.getPose(),
-            Math.hypot(sample.vx, sample.vy),
-            new Rotation2d(sample.heading)
-        );
-
-        // Apply the generated speeds
-        swerve.driveFieldRelative(speeds.vxMetersPerSecond + sample.vx, speeds.vyMetersPerSecond + sample.vy, speeds.omegaRadiansPerSecond + sample.omega);
     }
 
     /**

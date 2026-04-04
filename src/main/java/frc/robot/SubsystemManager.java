@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -97,9 +98,7 @@ public final class SubsystemManager {
             vy, 
             omega, 
             resetYaw,
-
             this::calculateAimPose
-            
         );
     }
 
@@ -140,7 +139,21 @@ public final class SubsystemManager {
             }
         }
 
-        return aimPose;
+        ChassisSpeeds speeds = poseTracker.getSwerve().getChassisSpeed();
+    
+        double vx = speeds.vxMetersPerSecond;
+        double vy = speeds.vyMetersPerSecond;
+
+        double distance = pose.getTranslation().getDistance(aimPose.getTranslation());
+
+        double shotSpeed = shooter.getIO().getEstimatedExitVelocity(distance);
+        double t = distance / shotSpeed;
+
+        // Compensación
+        double compensatedX = aimPose.getX() - vx * t;
+        double compensatedY = aimPose.getY() - vy * t;
+
+        return new Pose2d(compensatedX, compensatedY, aimPose.getRotation());
     }
 
 
@@ -273,8 +286,9 @@ public final class SubsystemManager {
                         () -> calculateAimPose().getTranslation().getDistance(poseTracker.getPose().getTranslation())
                     ).andThen(
                         channeler.feedCommand().andThen(
-                            intake.stowCommand()
-                    ))
+                            intake.grabCommand()
+                        )
+                    )
                 );
                 break;
             case CLIMB:

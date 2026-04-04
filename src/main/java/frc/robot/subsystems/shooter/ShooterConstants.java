@@ -13,6 +13,9 @@ public class ShooterConstants {
     private ShooterConstants() {
         // Clase de solo constantes: no instanciable.
     }
+    
+    public static final double FLYWHEEL_RADIUS_METERS = 0.0508;
+    public static final double FLYWHEEL_EFFICIENCY = 0.185;
 
     // ====================================================================
     // IDS DE DISPOSITIVOS CAN
