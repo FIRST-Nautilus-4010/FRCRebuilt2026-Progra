@@ -111,6 +111,11 @@ public class SwerveModule {
      * @param chassisPitch pitch actual del chasis (grados)
      */
     public void setDesiredState(SwerveModuleState desiredState, double chassisRoll, double chassisPitch) {
+        if (desiredState.speedMetersPerSecond < 0.1) {
+            io.stop();
+            return;
+        }
+
         // Ángulo actual del módulo medido por el encoder absoluto.
         Rotation2d encoderRotation = Rotation2d.fromRadians(io.getAbsoluteEncoderRadians());
 

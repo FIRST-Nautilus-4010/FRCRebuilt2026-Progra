@@ -33,7 +33,7 @@ public class PoseConfidenceTracker {
      */
     public void update(Swerve swerve) {
         double avgWheelSpeed = swerve.getAverageWheelSpeed();
-        double chassisSpeed = swerve.getChassisSpeed();
+        double chassisSpeed = swerve.getChassisSpeedMagnitude();
 
         // Si las ruedas "dicen" ir mucho más rápido que el chasis, probablemente hay skid.
         skidding = Math.abs(avgWheelSpeed - chassisSpeed) > SKID_SPEED_DIFF_THRESHOLD;

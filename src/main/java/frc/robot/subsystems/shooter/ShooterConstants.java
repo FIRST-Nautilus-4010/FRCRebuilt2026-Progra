@@ -19,9 +19,9 @@ public class ShooterConstants {
     // ====================================================================
 
     /** ID del motor TalonFX principal del shooter. */
-    public static final int SPIN_TALONFX_ID = 8;
+    public static final int SPIN_TALONFX_ID = 7;
     /** ID del motor TalonFX secundario del shooter. */
-    public static final int SPIN_SECONDARY_TALONFX_ID = 9;
+    public static final int SPIN_SECONDARY_TALONFX_ID = 4;
 
     // ====================================================================
     // MOTION MAGIC - CONTROL DE VELOCIDAD (SPIN)
@@ -38,22 +38,22 @@ public class ShooterConstants {
     // ====================================================================
 
     /** kS: Salida estática para vencer fricción (output). */
-    public static final double VEL_KS = 0.10442;
+    public static final double VEL_KS = 0.18;
 
     /** kV: Ganancia de velocidad (output / rps). */
-    public static final double VEL_KV = 0.10882;
+    public static final double VEL_KV = 0.12;
 
     /** kA: Ganancia de aceleración (output / (rps/s)). */
-    public static final double VEL_KA = 0.001647;
+    public static final double VEL_KA = 6;
 
     /** kP: Ganancia proporcional de velocidad (output / rps de error). */
-    public static final double VEL_KP = 0.4;
+    public static final double VEL_KP = 1.6;
 
     /** kI: Ganancia integral de velocidad (output / rps integrado). */
-    public static final double VEL_KI = 0.00;
+    public static final double VEL_KI = 1.00;
 
     /** kD: Ganancia derivativa de velocidad (output / (rps/s) de error). */
-    public static final double VEL_KD = 0.001;
+    public static final double VEL_KD = 0.12;
 
     // ====================================================================
     // VELOCIDADES PREDEFINIDAS

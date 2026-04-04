@@ -231,11 +231,11 @@ public class Swerve extends SubsystemBase {
      *
      * @return Velocidad del chasis (m/s)
      */
-    public double getChassisSpeed() {
+    public ChassisSpeeds getChassisSpeed() {
         ChassisSpeeds speeds =
                 ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
 
-        return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+        return speeds;
     }
 
     public double getChassisAngularSpeed() {
@@ -259,6 +259,13 @@ public class Swerve extends SubsystemBase {
         return speeds.vyMetersPerSecond;
     }
 
+    public double getChassisSpeedMagnitude() {
+        ChassisSpeeds speeds =
+                ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
+
+        return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+    }
+
     // ====================================================================
     // SENSORES DE ORIENTACIÓN (GYRO)
     // ====================================================================
@@ -269,7 +276,13 @@ public class Swerve extends SubsystemBase {
      * Establece 0° para alianza azul y 180° para alianza roja.
      */
     public void zeroHeading() {
-        final double resetHeading = DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? 180.0 : 0.0;
+        final double resetHeading;
+
+        if (DriverStation.getAlliance().isPresent()){
+            resetHeading = DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? 180.0 : 0.0;
+        } else {
+            resetHeading = 0;
+        }
 
         if (usePigeon) {
             pigeon.setYaw(resetHeading);

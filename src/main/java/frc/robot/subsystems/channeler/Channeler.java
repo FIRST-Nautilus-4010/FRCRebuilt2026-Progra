@@ -80,7 +80,7 @@ public class Channeler extends SubsystemBase{
             // Calcula velocidad de conducción sincronizada con shooter
             double velocity = Math.max(-Math.abs(velocitySupplier.get() * 2), -100);
 
-            controller.setVelocity(velocity);
+            controller.setVelocity(-velocity);
         } else {
             io.stopMotors();
         }

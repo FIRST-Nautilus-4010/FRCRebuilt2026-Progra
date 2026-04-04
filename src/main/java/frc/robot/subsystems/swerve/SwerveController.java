@@ -92,7 +92,7 @@ public class SwerveController {
      */
     private void configureMotors() {
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        driveConfig.CurrentLimits.SupplyCurrentLimit = 40;
+        driveConfig.CurrentLimits.SupplyCurrentLimit = 65;
         driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         driveConfig.CurrentLimits.StatorCurrentLimit = 120;
         driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;

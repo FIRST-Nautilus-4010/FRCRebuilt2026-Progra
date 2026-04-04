@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase{
      */
     public Intake() {
         this.io = new IntakeIO();
-        this.controller = new IntakeController(io.getspinBackMotor(), io.getspinFrontMotor(), io.getPivotMotor());
+        this.controller = new IntakeController(io.getspinMotor(), io.getPivotMotor());
     }
 
     /**
@@ -40,7 +40,7 @@ public class Intake extends SubsystemBase{
      * @return Comando de movimiento a posición de recogida
      */
     public Command grabCommand() {
-        return new Move(IntakeConstants.GRAB_ANGLE_RAD, IntakeConstants.GRAB_SPIN_RPS, IntakeConstants.GRAB_SPIN_RPS_SECONDARY, controller, io, this);
+        return new Move(IntakeConstants.GRAB_ANGLE_RAD, IntakeConstants.GRAB_SPIN_RPS, controller, io, this);
     }
 
     /**
@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase{
      * @return Comando de movimiento a posición de expulsión
      */
     public Command releaseCommand() {
-        return new Move(IntakeConstants.RELEASE_ANGLE_RAD, IntakeConstants.RELEASE_SPIN_RPS, IntakeConstants.RELEASE_SPIN_RPS_SECONDARY, controller, io, this);
+        return new Move(IntakeConstants.RELEASE_ANGLE_RAD, IntakeConstants.RELEASE_SPIN_RPS, controller, io, this);
     }
 
     /**
@@ -76,7 +76,7 @@ public class Intake extends SubsystemBase{
      * @return Comando de movimiento a posición de reposo
      */
     public Command stowCommand() {
-        return new Move(IntakeConstants.STOW_ANGLE_RAD, IntakeConstants.STOW_SPIN_RPS, IntakeConstants.STOW_SPIN_RPS_SECONDARY, controller, io, this);
+        return new Move(IntakeConstants.STOW_ANGLE_RAD, IntakeConstants.STOW_SPIN_RPS, controller, io, this);
     }
 
     /**
@@ -88,7 +88,7 @@ public class Intake extends SubsystemBase{
      * @return Comando de movimiento para prueba de spinners
      */
     public Command testRollersCommand() {
-        return new Move(io.getPivotPositionRad(), IntakeConstants.GRAB_SPIN_RPS, IntakeConstants.GRAB_SPIN_RPS_SECONDARY, controller, io, this);
+        return new Move(io.getPivotPositionRad(), IntakeConstants.GRAB_SPIN_RPS, controller, io, this);
     }
 
     /**

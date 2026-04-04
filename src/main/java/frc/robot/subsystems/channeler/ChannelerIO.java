@@ -15,7 +15,8 @@ public class ChannelerIO {
     /** Motor TalonFX principal del spinner. */
     private final TalonFX spinMotor;
     /** Motor TalonFX secundario (seguidor del principal). */
-    private final TalonFX secondaryMotor;
+    private final TalonFX indexerMotor;
+    private final TalonFX indexerSecondary;
 
     /**
      * Crea la interfaz de hardware del Channeler.
@@ -25,8 +26,10 @@ public class ChannelerIO {
      */
     public ChannelerIO() {
         this.spinMotor = new TalonFX(ChannelerConstants.SPIN_TALONFX_ID);
-        this.secondaryMotor = new TalonFX(ChannelerConstants.SPIN_SECONDARY_TALONFX_ID);
-        secondaryMotor.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Aligned));
+        this.indexerMotor = new TalonFX(ChannelerConstants.SPIN_INDEXER_TALONFX_ID);
+        this.indexerSecondary = new TalonFX(ChannelerConstants.SPIN_SECONDARY_INDEXER_TALONFX_ID);
+        indexerMotor.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        indexerSecondary.setControl(new Follower(spinMotor.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
     /**

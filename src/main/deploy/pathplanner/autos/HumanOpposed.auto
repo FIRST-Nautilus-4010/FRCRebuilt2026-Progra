@@ -7,13 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Prueba"
+            "pathName": "HummanOpposedRotate"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.2
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Travel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HumanOpposed1"
           }
         },
         {
@@ -37,19 +55,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Prueba2"
+            "pathName": "HumanOpposed2"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "New New Path"
+            "name": "Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Travel"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }
