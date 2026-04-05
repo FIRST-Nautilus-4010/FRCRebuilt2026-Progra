@@ -403,7 +403,7 @@ public class Swerve extends SubsystemBase {
                         rot,
                         getRotation2d());
 
-        drive(fieldRelativeSpeeds);
+        drive(fieldRelativeSpeeds, false);
     }
 
     /**
@@ -444,7 +444,7 @@ public class Swerve extends SubsystemBase {
 
         if (Math.abs(angleToTarget) >= Math.PI / 2) {
             // Sin objetivo válido, conducción normal
-            drive(speeds);
+            drive(speeds, false);
             return;
         }
 
@@ -456,7 +456,7 @@ public class Swerve extends SubsystemBase {
             speeds.omegaRadiansPerSecond
         );
 
-        drive(asistedVector);
+        drive(asistedVector, false);
     }
 
     /**
@@ -467,11 +467,11 @@ public class Swerve extends SubsystemBase {
      *
      * @param speeds velocidades de chasis (vx, vy, ω)
      */
-    public void drive(ChassisSpeeds speeds) {
+    public void drive(ChassisSpeeds speeds, boolean isPathPlannerAttached) {
         SwerveModuleState[] moduleStates =
                 ChassisConstants.KINEMATICS.toSwerveModuleStates(speeds);
         
-        setStates(moduleStates);
+        setStates(moduleStates, isPathPlannerAttached);
         swerveDesiredStatePublisher.set(moduleStates);
     }
 
@@ -483,7 +483,7 @@ public class Swerve extends SubsystemBase {
      *
      * @param desiredStates array de estados de módulo en orden [FL, FR, BL, BR]
      */
-    public void setStates(SwerveModuleState[] desiredStates) {
+    public void setStates(SwerveModuleState[] desiredStates, boolean isPathPlannerAttached) {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 desiredStates,
                 ChassisConstants.MAX_VELOCITY);
@@ -491,9 +491,9 @@ public class Swerve extends SubsystemBase {
         double roll = getRoll();
         double pitch = getPitch();
 
-        frontLeft.setDesiredState(desiredStates[0], roll, pitch);
-        frontRight.setDesiredState(desiredStates[1], roll, pitch);
-        backLeft.setDesiredState(desiredStates[2], roll, pitch);
-        backRight.setDesiredState(desiredStates[3], roll, pitch);
+        frontLeft.setDesiredState(desiredStates[0], roll, pitch, isPathPlannerAttached);
+        frontRight.setDesiredState(desiredStates[1], roll, pitch, isPathPlannerAttached);
+        backLeft.setDesiredState(desiredStates[2], roll, pitch, isPathPlannerAttached);
+        backRight.setDesiredState(desiredStates[3], roll, pitch, isPathPlannerAttached);
     }
 }

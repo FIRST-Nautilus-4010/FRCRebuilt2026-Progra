@@ -5,17 +5,17 @@
     "extensions": [
       {
         "name": "Sim GUI",
-        "libName": "E:\\Github\\FRCRebuilt2026-Progra\\build\\jni\\release\\halsim_gui.dll",
+        "libName": "C:\\Users\\Nautilus\\Documents\\GitHub\\FRCRebuilt2026-Progra\\build\\jni\\release\\halsim_gui.dll",
         "defaultEnabled": true
       },
       {
         "name": "Use Real DriverStation",
-        "libName": "E:\\Github\\FRCRebuilt2026-Progra\\build\\jni\\release\\halsim_ds_socket.dll",
+        "libName": "C:\\Users\\Nautilus\\Documents\\GitHub\\FRCRebuilt2026-Progra\\build\\jni\\release\\halsim_ds_socket.dll",
         "defaultEnabled": false
       }
     ],
     "environment": {},
-    "libraryDir": "E:\\Github\\FRCRebuilt2026-Progra\\build\\jni\\release",
+    "libraryDir": "C:\\Users\\Nautilus\\Documents\\GitHub\\FRCRebuilt2026-Progra\\build\\jni\\release",
     "mainClassName": "frc.robot.Main"
   }
 ]

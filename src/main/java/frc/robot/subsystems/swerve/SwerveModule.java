@@ -110,8 +110,8 @@ public class SwerveModule {
      * @param chassisRoll  roll actual del chasis (grados)
      * @param chassisPitch pitch actual del chasis (grados)
      */
-    public void setDesiredState(SwerveModuleState desiredState, double chassisRoll, double chassisPitch) {
-        if (desiredState.speedMetersPerSecond < 0.1) {
+    public void setDesiredState(SwerveModuleState desiredState, double chassisRoll, double chassisPitch, boolean isPathPlannerAttached) {
+        if (desiredState.speedMetersPerSecond < 0.001) {
             io.stop();
             return;
         }
@@ -119,63 +119,63 @@ public class SwerveModule {
         // Ángulo actual del módulo medido por el encoder absoluto.
         Rotation2d encoderRotation = Rotation2d.fromRadians(io.getAbsoluteEncoderRadians());
 
-        // Diferencia entre el ángulo deseado y el ángulo actual del módulo
-        // su coseno es la proyección de la velocidad deseada sobre la dirección actual
-        // esto evita que el módulo intente acelerar en una dirección diferente a la deseada
-        // lo que mejora la respuesta del swerve ante cambios rapidos de dirección.
-        double desiredFinalVel = desiredState.speedMetersPerSecond;
+        if (!isPathPlannerAttached) {
+                
+            // Diferencia entre el ángulo deseado y el ángulo actual del módulo
+            // su coseno es la proyección de la velocidad deseada sobre la dirección actual
+            // esto evita que el módulo intente acelerar en una dirección diferente a la deseada
+            // lo que mejora la respuesta del swerve ante cambios rapidos de dirección.
+            double desiredFinalVel = desiredState.speedMetersPerSecond;
 
-        // Velocidad objetivo y actual (en m/s). .
-        double currentVel = Math.abs(io.getDriveMotorVelocityMetersPerSecond());
+            // Velocidad objetivo y actual (en m/s). .
+            double currentVel = Math.abs(io.getDriveMotorVelocityMetersPerSecond());
 
-        // Dirección (ángulo) objetivo en radianes.
-        double wantedDirection = desiredState.angle.getRadians();
+            // Dirección (ángulo) objetivo en radianes.
+            double wantedDirection = desiredState.angle.getRadians();
 
-        // Aceleración teórica necesaria para pasar de velocidad actual a deseada en un ciclo.
-        double wantedAcc = (desiredFinalVel - currentVel) / CONTROL_PERIOD_SEC;
+            // Aceleración teórica necesaria para pasar de velocidad actual a deseada en un ciclo.
+            double wantedAcc = (desiredFinalVel - currentVel) / CONTROL_PERIOD_SEC;
 
-        // Limita la aceleración en función de capacidades del robot y estabilidad.
-        double[] accLimits = accLimits(wantedAcc, wantedDirection);
-        // Si quieres activar estabilidad extra, descomenta: (aún en fase de pruebas)
-        // accLimits = applyStabilityAssist(accLimits[0], accLimits[1], chassisRoll, chassisPitch);
+            // Limita la aceleración en función de capacidades del robot y estabilidad.
+            double[] accLimits = accLimits(wantedAcc, wantedDirection, desiredFinalVel);
+            // Si quieres activar estabilidad extra, descomenta: (aún en fase de pruebas)
+            // accLimits = applyStabilityAssist(accLimits[0], accLimits[1], chassisRoll, chassisPitch);
 
-        double limitedAcc = accLimits[0];
-        double limitedDirection = accLimits[1];
+            double limitedAcc = accLimits[0];
+            double limitedDirection = accLimits[1];
 
-        // Calcula la velocidad en el siguiente ciclo usando la aceleración limitada.
-        double nextWantedVel = currentVel + (limitedAcc * CONTROL_PERIOD_SEC);
+            // Calcula la velocidad en el siguiente ciclo usando la aceleración limitada.
+            double nextWantedVel = currentVel + (limitedAcc * CONTROL_PERIOD_SEC);
 
-        // Crea un nuevo estado con velocidad y dirección ya limitadas.
-        SwerveModuleState optimizedState =
-                new SwerveModuleState(nextWantedVel, Rotation2d.fromRadians(limitedDirection));
+            // Crea un nuevo estado con velocidad y dirección ya limitadas.
+            SwerveModuleState optimizedState =
+                    new SwerveModuleState(nextWantedVel, Rotation2d.fromRadians(limitedDirection));
 
-        // Optimiza para minimizar el giro del módulo (puede invertir la rueda).
-        optimizedState.optimize(encoderRotation);
+            // Optimiza para minimizar el giro del módulo (puede invertir la rueda).
+            optimizedState.optimize(encoderRotation);
 
-        // Aplica velocidad (con deadzone para evitar vibraciones a baja velocidad).
-        if (Math.abs(desiredState.speedMetersPerSecond) < SwerveConstants.VELOCITY_DEADZONE) {
-            controller.setVelocity(0.0);
+            controller.setVelocity(optimizedState.speedMetersPerSecond);
+            controller.setAngle(optimizedState.angle.getRadians());
+
+            // Debug centralizado.
+            int moduleId = io.getDriveMotor().getDeviceID();
+            lastDebugTime = SwerveDebugUtil.publishModuleDebug(
+                    moduleId,
+                    desiredFinalVel,
+                    currentVel,
+                    nextWantedVel,
+                    wantedAcc,
+                    limitedAcc,
+                    wantedDirection,
+                    limitedDirection,
+                    lastDebugTime,
+                    DEBUG_UPDATE_INTERVAL_SEC
+            );
         } else {
-            controller.setVelocity(optimizedState.speedMetersPerSecond * optimizedState.angle.minus(encoderRotation).getCos());
+            desiredState.optimize(encoderRotation);
+            controller.setVelocity(desiredState.speedMetersPerSecond);
+            controller.setAngle(desiredState.angle.getRadians());
         }
-
-        // Aplica ángulo objetivo.
-        controller.setAngle(optimizedState.angle.getRadians());
-
-        // Debug centralizado.
-        int moduleId = io.getDriveMotor().getDeviceID();
-        lastDebugTime = SwerveDebugUtil.publishModuleDebug(
-                moduleId,
-                desiredFinalVel,
-                currentVel,
-                nextWantedVel,
-                wantedAcc,
-                limitedAcc,
-                wantedDirection,
-                limitedDirection,
-                lastDebugTime,
-                DEBUG_UPDATE_INTERVAL_SEC
-        );
     }
 
     /**
@@ -190,13 +190,13 @@ public class SwerveModule {
      * @param wantedDirection dirección deseada (rad)
      * @return array [aceleraciónLimitada (m/s²), direcciónLimitada (rad)]
      */
-    private double[] accLimits(double wantedAcc, double wantedDirection) {
+    private double[] accLimits(double wantedAcc, double wantedDirection, double desiredFinalVel) {
         double wantedAccMagnitude = Math.abs(wantedAcc);
 
         // Aceleración máxima hacia adelante: se reduce cuando te acercas a la velocidad máxima.
         double maxForwardAccel =
                 SwerveConstants.MAX_FORDWARD_ACCEL *
-                (1.0 - (io.getDriveMotorVelocityMetersPerSecond() / ChassisConstants.MAX_VELOCITY));
+                (1.0 - (io.getDriveMotorVelocityMetersPerSecond() / desiredFinalVel));
 
         double forwardAccel = Math.min(wantedAccMagnitude, maxForwardAccel);
         double skidAccel = Math.min(wantedAccMagnitude, SwerveConstants.MAX_SKID_ACCEL);

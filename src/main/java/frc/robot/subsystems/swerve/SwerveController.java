@@ -2,6 +2,7 @@ package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -50,7 +51,7 @@ public class SwerveController {
      * Request de control para posición (Motion Magic Expo) del motor de giro.
      * Usa el Slot0 de la configuración.
      */
-    private final MotionMagicExpoVoltage positionRequest;
+    private final MotionMagicVoltage positionRequest;
 
     /**
      * Crea un controlador para un módulo swerve.
@@ -71,7 +72,7 @@ public class SwerveController {
 
         // Requests de control iniciales (valor 0, slot 0).
         this.velocityRequest = new VelocityVoltage(0.0).withSlot(0);
-        this.positionRequest = new MotionMagicExpoVoltage(0.0).withSlot(0);
+        this.positionRequest = new MotionMagicVoltage(0.0).withSlot(0);
 
         // Configura gains de slots y parámetros de Motion Magic.
         configureDriveGains();

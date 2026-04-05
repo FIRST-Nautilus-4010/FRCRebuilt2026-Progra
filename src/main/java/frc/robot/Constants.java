@@ -44,13 +44,13 @@ public final class Constants {
     public static final double MAX_VELOCITY = 5;
 
     /** Velocidad angular máxima del chasis (rad/s). */
-    public static final double MAX_ANG_SPD = 13.401;
+    public static final double MAX_ANG_SPD = 11.34;
 
     /** Aceleración lineal máxima esperada del chasis (m/s²). */
     public static final double MAX_ACCEL = 11.9;
 
     /** Aceleración angular máxima esperada del chasis (rad/s²). */
-    public static final double MAX_ANG_ACCEL = 50.71927;
+    public static final double MAX_ANG_ACCEL = 50.71;
   }
 
   // ------------------------------------------------------------------------
