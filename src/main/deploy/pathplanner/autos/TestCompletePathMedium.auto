@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HumanOpposed2"
+            "pathName": "TestCompletePathMedium"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Test",
   "choreoAuto": false
 }

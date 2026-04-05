@@ -1,0 +1,86 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.69186046511628,
+        "y": 4.580825219465976
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 8.936084280665542,
+        "y": 4.634254873391117
+      },
+      "isLocked": false,
+      "linkedName": "PassBalls(Load1)EndPos"
+    },
+    {
+      "anchor": {
+        "x": 7.816,
+        "y": 3.7928176523590142
+      },
+      "prevControl": {
+        "x": 8.251914844802249,
+        "y": 3.267966262154682
+      },
+      "nextControl": {
+        "x": 7.281056980629277,
+        "y": 4.436901217634696
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.816,
+        "y": 5.925259391772383
+      },
+      "prevControl": {
+        "x": 7.735505526879722,
+        "y": 5.68857259493511
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "PassBalls(Load2)EndPos"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.21925133689839466,
+      "rotationDegrees": -129.25549491276303
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 7.816,
+        "y": 5.925
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 1.1,
+      "maxWaypointRelativePos": 1.85,
+      "name": "Point Towards Zone"
+    }
+  ],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 11.9,
+    "maxAngularVelocity": 650.0,
+    "maxAngularAcceleration": 2906.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 173.04328411609563
+  },
+  "reversed": false,
+  "folder": "HumanOpposed",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 163.0
+  },
+  "useDefaultConstraints": true
+}

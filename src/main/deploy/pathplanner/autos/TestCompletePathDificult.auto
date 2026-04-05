@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TestComplete"
+            "pathName": "TestCompletePathDificult"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Test",
   "choreoAuto": false
 }

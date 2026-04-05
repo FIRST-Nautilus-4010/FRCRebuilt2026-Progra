@@ -1,0 +1,82 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.5542042752303793,
+        "y": 7.416127441843422
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.765313059033989,
+        "y": 7.320644007155635
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.69186046511628,
+        "y": 6.460697674418604
+      },
+      "prevControl": {
+        "x": 8.016117243188022,
+        "y": 7.337865531804237
+      },
+      "nextControl": {
+        "x": 8.977184604901913,
+        "y": 6.090324496805386
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.69186046511628,
+        "y": 4.580825219465976
+      },
+      "prevControl": {
+        "x": 8.968885059451559,
+        "y": 5.6925160777811445
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "PassBalls(Load1)EndPos"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.9786096256684513,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0.5152542372881352,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 11.9,
+    "maxAngularVelocity": 650.0,
+    "maxAngularAcceleration": 2906.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 163.0
+  },
+  "reversed": false,
+  "folder": "HumanOpposed",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}
