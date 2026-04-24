@@ -3,16 +3,19 @@
   "robotLength": 0.914,
   "holonomicMode": true,
   "pathFolders": [
-    "New Folder"
+    "Autos",
+    "Test"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "Test"
+  ],
   "defaultMaxVel": 4.5,
-  "defaultMaxAccel": 11.9,
-  "defaultMaxAngVel": 650.0,
-  "defaultMaxAngAccel": 2906.0,
+  "defaultMaxAccel": 7.0,
+  "defaultMaxAngVel": 540.0,
+  "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,
-  "robotMass": 74.0,
-  "robotMOI": 6.883,
+  "robotMass": 76.0,
+  "robotMOI": 11.5,
   "robotTrackwidth": 0.546,
   "driveWheelRadius": 0.051,
   "driveGearing": 6.03,

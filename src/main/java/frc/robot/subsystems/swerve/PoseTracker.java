@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -101,7 +102,7 @@ public class PoseTracker {
 
         this.poseEstimator = new SwerveDrivePoseEstimator(
                 ChassisConstants.KINEMATICS,
-                swerve.getRotation2d(),
+                Rotation2d.fromDegrees(0),
                 swerve.getSwerveModulePos(),
                 AutonomousConstants.initialPose
         );

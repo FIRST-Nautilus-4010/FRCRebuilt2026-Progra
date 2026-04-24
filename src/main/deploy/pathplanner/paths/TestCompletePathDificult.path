@@ -108,10 +108,10 @@
   ],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 11.9,
-    "maxAngularVelocity": 650.0,
-    "maxAngularAcceleration": 2906.0,
+    "maxVelocity": 4.5,
+    "maxAcceleration": 7.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -120,7 +120,7 @@
     "rotation": 131.90314813908518
   },
   "reversed": false,
-  "folder": "Tests",
+  "folder": "Test",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

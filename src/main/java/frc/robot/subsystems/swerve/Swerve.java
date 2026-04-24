@@ -276,18 +276,11 @@ public class Swerve extends SubsystemBase {
      * Establece 0° para alianza azul y 180° para alianza roja.
      */
     public void zeroHeading() {
-        final double resetHeading;
-
-        if (DriverStation.getAlliance().isPresent()){
-            resetHeading = DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? 180.0 : 0.0;
-        } else {
-            resetHeading = 0;
-        }
 
         if (usePigeon) {
-            pigeon.setYaw(resetHeading);
+            pigeon.setYaw(0);
         } else {
-            gyro.setAngleAdjustment(resetHeading);
+            gyro.setAngleAdjustment(0);
         }
     }
     

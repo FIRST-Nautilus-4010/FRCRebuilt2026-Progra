@@ -32,7 +32,7 @@ public class IntakeConstants {
     public static final double PIVOT_SOFT_LIMIT_FORWARD = 0.36;
     
     /** Límite inferior de posición del pivote (rotaciones). */
-    public static final double PIVOT_SOFT_LIMIT_REVERSE = -0.1;
+    public static final double PIVOT_SOFT_LIMIT_REVERSE = -1;
 
     // ====================================================================
     // GEOMETRÍA Y CONVERSIONES
@@ -122,14 +122,14 @@ public class IntakeConstants {
     // ====================================================================
 
     /** Ángulo del pivote para grabbing (radianes). */
-    public static final double GRAB_ANGLE_RAD = 0;
+    public static final double GRAB_ANGLE_RAD = -0.6;
     /** Velocidad del spinner frontal para grabbing (RPS). */
-    public static final double GRAB_SPIN_RPS = -70.0;
+    public static final double GRAB_SPIN_RPS = -100.0;
 
     /** Ángulo del pivote para release (radianes). */
     public static final double RELEASE_ANGLE_RAD = 0;
     /** Velocidad del spinner frontal para release (RPS). */
-    public static final double RELEASE_SPIN_RPS = 30.0;
+    public static final double RELEASE_SPIN_RPS = 100.0;
 
     /** Ángulo del pivote en reposo (radianes). */
     public static final double STOW_ANGLE_RAD = 0.332275 * ROT_2_RAD;

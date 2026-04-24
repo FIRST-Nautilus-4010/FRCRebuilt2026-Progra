@@ -54,7 +54,7 @@ public class Move extends Command {
   @Override
   public void end(boolean interrupted) {
     //controller.keepPos();
-    io.getPivotMotor().stopMotor();
+    //io.getPivotMotor().stopMotor();
   }
 
   /**
@@ -68,7 +68,7 @@ public class Move extends Command {
    */
   @Override
   public boolean isFinished() {
-    return Math.abs(io.getPivotPositionRad() - angle) < 0.2 &&
+    return Math.abs(io.getPivotPositionRad() - angle) < 0.01 &&
             Math.abs(io.getSpinVelocityRPS() - spinVelocity) < 0.1;
   }
 }

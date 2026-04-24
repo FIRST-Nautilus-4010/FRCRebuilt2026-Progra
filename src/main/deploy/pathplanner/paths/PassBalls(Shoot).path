@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 7.816,
-        "y": 5.925259391772383
+        "y": 5.925000000000001
       },
       "prevControl": null,
       "nextControl": {
         "x": 7.9949521908377195,
-        "y": 5.750685300354497
+        "y": 5.750425908582115
       },
       "isLocked": false,
       "linkedName": "PassBalls(Load2)EndPos"
@@ -32,48 +32,48 @@
     },
     {
       "anchor": {
-        "x": 5.755,
-        "y": 4.936
+        "x": 6.360637417218543,
+        "y": 4.833592715231787
       },
       "prevControl": {
-        "x": 6.058843483798138,
-        "y": 5.475836916747518
+        "x": 6.971559248451793,
+        "y": 4.9361562343439385
       },
       "nextControl": {
-        "x": 5.6323779120380175,
-        "y": 4.718138063113714
+        "x": 5.366026490066224,
+        "y": 4.666614238410594
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.193148479420571,
-        "y": 7.385545617172768
+        "x": 6.2154387417218535,
+        "y": 7.447168874172185
       },
       "prevControl": {
-        "x": 7.183775489065767,
-        "y": 7.246126288566791
+        "x": 7.20606575136705,
+        "y": 7.3077495455662085
       },
       "nextControl": {
-        "x": 4.968210365629705,
-        "y": 7.557941531826619
+        "x": 4.990500627930988,
+        "y": 7.619564788826036
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.5646332737030413,
-        "y": 7.385545617172768
+        "x": 3.449403973509934,
+        "y": 7.592367549668873
       },
       "prevControl": {
-        "x": 5.781656607408161,
-        "y": 7.253283555934724
+        "x": 5.666427307215054,
+        "y": 7.4601054884308295
       },
       "nextControl": {
-        "x": 2.10218097883305,
-        "y": 7.472791859483873
+        "x": 1.986951678639943,
+        "y": 7.679613791979979
       },
       "isLocked": false,
       "linkedName": null
@@ -225,25 +225,12 @@
       "name": "Point Towards Zone"
     }
   ],
-  "eventMarkers": [
-    {
-      "name": "Travel",
-      "waypointRelativePos": 2.2745762711864406,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "Intake",
-      "waypointRelativePos": 3.989830508474576,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 11.9,
-    "maxAngularVelocity": 650.0,
-    "maxAngularAcceleration": 2906.0,
+    "maxVelocity": 4.5,
+    "maxAcceleration": 7.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -252,10 +239,10 @@
     "rotation": -36.158185439808356
   },
   "reversed": false,
-  "folder": "HumanOpposed",
+  "folder": "Autos",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 173.04328411609563
+    "rotation": -173.043
   },
   "useDefaultConstraints": true
 }

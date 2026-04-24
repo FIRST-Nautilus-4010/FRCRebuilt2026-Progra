@@ -271,13 +271,31 @@ public final class SubsystemManager {
                     shooter.stopCommand()
                 );
                 break;
+            case INTAKE_TEST:
+                CommandScheduler.getInstance().schedule(
+                    new InstantCommand(() -> {
+                            Drive.assistX = false;
+                            Drive.assistY = false;
+                            Drive.assistTheta = false;
+                            Drive.aimEnabled = false;
+                            //tejuino.all_leds_yellow(1);
+                            //tejuino.all_leds_yellow(2);
+                        }),
+                    intake.resetMaxVelocityCommand(),
+                    intake.grabCommand(),
+                    intake.grabCommand(),
+
+                    channeler.stopCommand(),
+                    shooter.stopCommand()
+                );
+                break;
             case SHOOT:
                 CommandScheduler.getInstance().schedule(
                     new InstantCommand(() -> {
                             Drive.assistX = false;
                             Drive.assistY = false;
-                            Drive.assistTheta = true;
-                            Drive.aimEnabled = true;
+                            Drive.assistTheta = false;
+                            Drive.aimEnabled = false;
                             //tejuino.all_leds_red(1);
                             //tejuino.all_leds_red(2);
                         }),
@@ -285,10 +303,9 @@ public final class SubsystemManager {
                     shooter.shootCommand(
                         () -> calculateAimPose().getTranslation().getDistance(poseTracker.getPose().getTranslation())
                     ).andThen(
-                        channeler.feedCommand().andThen(
-                            intake.grabCommand()
-                        )
-                    )
+                        channeler.feedCommand()
+                    ),
+                    intake.stowCommand()
                 );
                 break;
             case CLIMB:
@@ -307,9 +324,37 @@ public final class SubsystemManager {
                     shooter.stopCommand()
                 );
                 break;
+            case OUTAKE:
+                    CommandScheduler.getInstance().schedule(
+                        intake.releaseCommand()
+                    );
             case TEST:
                 CommandScheduler.getInstance().schedule(
                     intake.stowCommand()
+                );
+                break;
+            case SHOOT_MANUAL:
+                // Verifica que los controles estén configurados
+                if (travelVxSupplier == null) {
+                    throw new IllegalStateException(
+                        "Travel controls not configured. Call configureTravelControls() first."
+                    );
+                }
+                
+                CommandScheduler.getInstance().schedule(
+                    new ParallelCommandGroup(
+                        new InstantCommand(() -> {
+                            Drive.assistX = false;
+                            Drive.assistY = false;
+                            Drive.assistTheta = false;
+                            Drive.aimEnabled = false;
+                            //tejuino.all_leds_blue(1);
+                            //tejuino.all_leds_blue(2);
+                        }),
+                        intake.stopCommand(),
+                        channeler.stopCommand(),
+                        shooter.shootCommand(() -> 3.0)
+                    )
                 );
                 break;
             default:

@@ -31,8 +31,8 @@ public class PathPlannerAutoBuilder {
             poseTracker.getSwerve()::getChassisSpeed, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             (speeds, feedforwards) -> poseTracker.getSwerve().drive(speeds, true), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                    new PIDConstants(4.8, 0, 0.1), // Translation PID constants
-                    new PIDConstants(4.8, 0, 0.1) // Rotation PID constants
+                    new PIDConstants(3, 0, 0.2), // Translation PID constants
+                    new PIDConstants(2.2, 0, 0.2) // Rotation PID constants
             ),
             config,
             () -> {
@@ -46,9 +46,10 @@ public class PathPlannerAutoBuilder {
             poseTracker.getSwerve()
         );
       
-      NamedCommands.registerCommand("Travel", new InstantCommand(() -> subsystemManager.scheduleState(RobotState.TRAVEL)));
-      NamedCommands.registerCommand("Intake", new PrintCommand("Intake inicializado (No se mueve porque se rompe)"));
+      
+      NamedCommands.registerCommand("Intake", new InstantCommand(() -> subsystemManager.scheduleState(RobotState.INTAKE)));
       NamedCommands.registerCommand("Shoot", new InstantCommand(() -> subsystemManager.scheduleState(RobotState.SHOOT)));
+      NamedCommands.registerCommand("Intake2", new InstantCommand(() -> subsystemManager.scheduleState(RobotState.INTAKE_TEST)));
       NamedCommands.registerCommand("Climb", new InstantCommand(() -> subsystemManager.scheduleState(RobotState.CLIMB)));
     }
     

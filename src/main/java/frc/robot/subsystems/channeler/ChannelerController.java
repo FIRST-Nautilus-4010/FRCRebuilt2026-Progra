@@ -77,7 +77,7 @@ public class ChannelerController {
         spinConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         spinConfig.CurrentLimits.SupplyCurrentLimit = 40;
         spinConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        spinConfig.CurrentLimits.StatorCurrentLimit = 120;
+        spinConfig.CurrentLimits.StatorCurrentLimit = 80;
         spinConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     }
 

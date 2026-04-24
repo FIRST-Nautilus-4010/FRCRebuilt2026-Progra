@@ -27,6 +27,13 @@ public class IntakeIO {
     public IntakeIO() {
         this.spinMotor = new TalonFX(IntakeConstants.SPIN_TALONFX_ID);
         this.pivotMotor = new TalonFX(IntakeConstants.PIVOT_TALONFX_ID);
+        TalonFX pivot2 = new TalonFX(10);
+        pivot2.setControl(new Follower(pivotMotor.getDeviceID(), MotorAlignmentValue.Aligned));
+        TalonFX pivot3 = new TalonFX(9);
+        pivot3.setControl(new Follower(pivotMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        TalonFX pivot4 = new TalonFX(8);
+        pivot4.setControl(new Follower(pivotMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+
 
         this.pivotMotor.setPosition(0.332275);
     }

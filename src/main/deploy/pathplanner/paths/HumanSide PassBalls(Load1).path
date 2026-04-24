@@ -1,0 +1,98 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.554,
+        "y": 0.684
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.501540570122408,
+        "y": 0.6096630343701228
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.137450331125828,
+        "y": 0.684
+      },
+      "prevControl": {
+        "x": 6.251422092431941,
+        "y": 0.5989594110646941
+      },
+      "nextControl": {
+        "x": 7.386306717200489,
+        "y": 0.7078851231912175
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.567657284768211,
+        "y": 1.4577235099337735
+      },
+      "prevControl": {
+        "x": 8.393347594201845,
+        "y": 1.2378086766732912
+      },
+      "nextControl": {
+        "x": 8.722948246826538,
+        "y": 1.6536436903721325
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.692,
+        "y": 3.489
+      },
+      "prevControl": {
+        "x": 8.676556291390728,
+        "y": 2.227276490066225
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "HumanSidePassBalls(Load1)End"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 2.0791195716835205,
+      "rotationDegrees": 90.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "",
+      "waypointRelativePos": 1.05,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.5,
+    "maxAcceleration": 7.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -163.0
+  },
+  "reversed": false,
+  "folder": "Autos",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

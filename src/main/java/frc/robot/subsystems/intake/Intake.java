@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase{
      * @return Comando de movimiento a posición de expulsión
      */
     public Command releaseCommand() {
-        return new Move(IntakeConstants.RELEASE_ANGLE_RAD, IntakeConstants.RELEASE_SPIN_RPS, controller, io, this);
+        return new Move(io.getPivotPositionRad(), IntakeConstants.RELEASE_SPIN_RPS, controller, io, this);
     }
 
     /**

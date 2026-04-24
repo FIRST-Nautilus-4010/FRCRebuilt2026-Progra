@@ -12,7 +12,7 @@
         "y": 7.320644007155635
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "PassBallsStart"
     },
     {
       "anchor": {
@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 8.69186046511628,
-        "y": 4.580825219465976
+        "x": 8.692,
+        "y": 4.581
       },
       "prevControl": {
-        "x": 8.968885059451559,
-        "y": 5.6925160777811445
+        "x": 8.969024594335279,
+        "y": 5.692690858315169
       },
       "nextControl": null,
       "isLocked": false,
@@ -52,19 +52,12 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Intake",
-      "waypointRelativePos": 0.5152542372881352,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 11.9,
-    "maxAngularVelocity": 650.0,
-    "maxAngularAcceleration": 2906.0,
+    "maxVelocity": 4.5,
+    "maxAcceleration": 7.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -73,7 +66,7 @@
     "rotation": 163.0
   },
   "reversed": false,
-  "folder": "HumanOpposed",
+  "folder": "Autos",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

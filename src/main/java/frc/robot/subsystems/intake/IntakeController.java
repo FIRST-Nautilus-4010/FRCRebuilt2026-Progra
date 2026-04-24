@@ -102,13 +102,13 @@ public class IntakeController {
         spinConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         spinConfig.CurrentLimits.SupplyCurrentLimit = 40;
         spinConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        spinConfig.CurrentLimits.StatorCurrentLimit = 120;
+        spinConfig.CurrentLimits.StatorCurrentLimit = 40;
         spinConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         pivotConfig.CurrentLimits.SupplyCurrentLimit = 40;
         pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        pivotConfig.CurrentLimits.StatorCurrentLimit = 120;
+        pivotConfig.CurrentLimits.StatorCurrentLimit = 40;
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         pivotConfig.Feedback.SensorToMechanismRatio = 8.33333;

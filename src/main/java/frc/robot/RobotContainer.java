@@ -26,8 +26,10 @@ public class RobotContainer {
   /** Controlador Xbox del driver (puerto 0). */
   private final XboxController driverJoystick;
 
+  private final XboxController codriverJoystick;
+
   /** Gestor centralizado de subsistemas y estados del robot. */
-  private final SubsystemManager subsystemManager;
+  public final SubsystemManager subsystemManager;
 
   /** Chooser de comandos autónomos para selección en SmartDashboard/Shuffleboard. */
   private final SendableChooser<Command> autoChooser;
@@ -41,6 +43,7 @@ public class RobotContainer {
   public RobotContainer() {
 
     this.driverJoystick = new XboxController(0);
+    this.codriverJoystick = new XboxController(1);
     this.subsystemManager = new SubsystemManager();
 
     configureBindings();
@@ -49,7 +52,7 @@ public class RobotContainer {
 
     PathPlannerAutoBuilder.initialize(subsystemManager);
 
-    boolean isCompetition = DriverStation.isFMSAttached();
+    boolean isCompetition = true;
 
     autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
       (stream) -> isCompetition
@@ -104,7 +107,7 @@ public class RobotContainer {
       isRed = false;
     }
     
-    final double sideMultiplier = isRed ? -1.0 : 1.0;
+    final double sideMultiplier = 1;
     
     subsystemManager.configureTravelControls(
         () -> -driverJoystick.getLeftY() * sideMultiplier,
@@ -118,24 +121,30 @@ public class RobotContainer {
     // ====================================================================
     
     // Botón Y → Estado TEST (diagnóstico y prueba)
-    Trigger testTrigger = new Trigger(() -> driverJoystick.getYButton());
+    Trigger testTrigger = new Trigger(() -> codriverJoystick.getYButton());
     testTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.TEST)));
 
     // Trigger Izquierdo → Estado INTAKE (recolección de fuel)
-    Trigger intakeTrigger = new Trigger(() -> driverJoystick.getLeftTriggerAxis() > 0.5);
+    Trigger intakeTrigger = new Trigger(() -> codriverJoystick.getLeftTriggerAxis() > 0.5);
     intakeTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.INTAKE)));
 
     // Trigger Derecho → Estado SHOOT (lanzamiento de fuel)
-    Trigger shootTrigger = new Trigger(() -> driverJoystick.getRightTriggerAxis() > 0.5);
+    Trigger shootTrigger = new Trigger(() -> codriverJoystick.getRightTriggerAxis() > 0.5);
     shootTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.SHOOT)));
 
     // Botón B → Estado CLIMB (escalada)
-    Trigger climbTrigger = new Trigger(() -> driverJoystick.getBButton());
+    Trigger climbTrigger = new Trigger(() -> codriverJoystick.getBButton());
     climbTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.CLIMB)));
 
     // Botón X → Estado TRAVEL (conducción normal)
-    Trigger travelTrigger = new Trigger(() -> driverJoystick.getXButton());
+    Trigger travelTrigger = new Trigger(() -> codriverJoystick.getXButton());
     travelTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.TRAVEL)));
+
+    Trigger outakeTrigger = new Trigger(() -> codriverJoystick.getLeftBumperButton());
+    outakeTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.OUTAKE)));
+
+    Trigger shootManualTrigger = new Trigger(() -> codriverJoystick.getRightBumperButton());
+    shootManualTrigger.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.SHOOT_MANUAL)));
   }  
   
 

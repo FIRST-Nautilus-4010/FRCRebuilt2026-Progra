@@ -5,27 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "HummanOpposedRotate"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "Travel"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Travel"
+            "name": "Intake"
           }
         },
         {
@@ -37,19 +19,19 @@
         {
           "type": "named",
           "data": {
-            "name": "Travel"
+            "name": "Shoot"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.0
+            "waitTime": 2.5
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Travel"
+            "name": "Intake"
           }
         },
         {
@@ -61,19 +43,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Travel"
+            "name": "Shoot"
           }
         },
         {
           "type": "wait",
           "data": {
             "waitTime": 5.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Travel"
           }
         }
       ]

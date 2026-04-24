@@ -101,7 +101,7 @@ public class SwerveController {
         turningConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         turningConfig.CurrentLimits.SupplyCurrentLimit = 40;
         turningConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        turningConfig.CurrentLimits.StatorCurrentLimit = 120;
+        turningConfig.CurrentLimits.StatorCurrentLimit = 70;
         turningConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     }
 

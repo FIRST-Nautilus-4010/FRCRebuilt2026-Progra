@@ -1,0 +1,172 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.816,
+        "y": 2.145
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.968304594573373,
+        "y": 1.946749374599119
+      },
+      "isLocked": false,
+      "linkedName": "HumanSidePassBalls(Load2)End"
+    },
+    {
+      "anchor": {
+        "x": 6.793488372093818,
+        "y": 1.9660000000000002
+      },
+      "prevControl": {
+        "x": 7.246748553224097,
+        "y": 2.089558116023738
+      },
+      "nextControl": {
+        "x": 6.3840699607022735,
+        "y": 1.8543930914671927
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.193148479420571,
+        "y": 3.432425496688742
+      },
+      "prevControl": {
+        "x": 6.425574132661236,
+        "y": 3.5245032666207403
+      },
+      "nextControl": {
+        "x": 5.11192880794702,
+        "y": 3.0040894039735084
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.193148479420571,
+        "y": 0.6840000000000002
+      },
+      "prevControl": {
+        "x": 7.301956051912327,
+        "y": 0.695986531794219
+      },
+      "nextControl": {
+        "x": 4.96538932088421,
+        "y": 0.6707275670237646
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.5646332737030413,
+        "y": 0.6840000000000002
+      },
+      "prevControl": {
+        "x": 5.808261791579488,
+        "y": 0.5646657223934606
+      },
+      "nextControl": {
+        "x": 2.412361189560102,
+        "y": 0.745287131836569
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.700907473309609,
+        "y": 0.6840000000000002
+      },
+      "prevControl": {
+        "x": 0.3435318917790571,
+        "y": 0.6831870335566815
+      },
+      "nextControl": {
+        "x": 1.6778741251531,
+        "y": 0.6862224268955049
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.379341637010677,
+        "y": 1.8239857651245552
+      },
+      "prevControl": {
+        "x": 1.8116623875825528,
+        "y": 1.2875057914670274
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 2.3593099345627517,
+      "rotationDegrees": -74.49854470438802
+    },
+    {
+      "waypointRelativePos": 3.7967914438502754,
+      "rotationDegrees": -178.139
+    },
+    {
+      "waypointRelativePos": 5,
+      "rotationDegrees": -178.836
+    },
+    {
+      "waypointRelativePos": 5.5,
+      "rotationDegrees": -154.761
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 5.755,
+        "y": 3.1340000000000003
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.4949152542372879,
+      "maxWaypointRelativePos": 2.0,
+      "name": "Point Towards Zone"
+    },
+    {
+      "fieldPosition": {
+        "x": 4.625,
+        "y": 4.033
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 5.5,
+      "maxWaypointRelativePos": 5.9,
+      "name": "Point Towards Zone"
+    }
+  ],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.5,
+    "maxAcceleration": 7.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 41.922544600575634
+  },
+  "reversed": false,
+  "folder": "Autos",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -173.043
+  },
+  "useDefaultConstraints": true
+}
